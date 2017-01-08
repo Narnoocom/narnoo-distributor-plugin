@@ -9,7 +9,7 @@ Author URI: http://www.narnoo.com/
 License: GPL2 or later
 */
 
-/*  Copyright 2016  Narnoo.com  (email : info@narnoo.com)
+/*  Copyright 2017  Narnoo.com  (email : info@narnoo.com)
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as
@@ -128,6 +128,7 @@ class Narnoo_Distributor {
 		add_action( 'wp_ajax_narnoo_distributor_lib_request', 			array( &$this, 'narnoo_distributor_ajax_lib_request' ) );
 		add_action( 'wp_ajax_nopriv_narnoo_distributor_lib_request', 	array( &$this, 'narnoo_distributor_ajax_lib_request' ) );
 		add_filter( 'pre_get_posts', 									array( &$this, 'add_cpts_to_search') );
+		add_shortcode('category_listings', 								array( &$this, 'narnoo_listings_child_pages') );
 	}
 
 	/**
@@ -969,4 +970,29 @@ class Narnoo_Distributor {
 		</style>
 		<?php
 	}
+
+
+
+/*******************************************************************************
+			SHORTCODE FOR DISPLAYING CHILDREN OF LISTINGS PAGES
+/*******************************************************************************/
+
+	
+	function narnoo_listings_child_pages() { 
+
+		ob_start();
+		require( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/shortcode/child-pages.php' );
+		return ob_get_clean();  
+
+	}
+
+/*******************************************************************************
+			SHORTCODE FOR DISPLAYING CHILDREN OF LISTINGS PAGES
+/*******************************************************************************/
+
+
+
+
+
+
 }
