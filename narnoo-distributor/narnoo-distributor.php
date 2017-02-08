@@ -821,7 +821,7 @@ class Narnoo_Distributor {
 	    if( !current_user_can( 'edit_post' ) ) return;
 
 	    if( isset( $_POST['noo_print_box_text'] ) ){
-        	update_post_meta( $post_id, 'noo_print_id', wp_kses( $_POST['noo_print_box_text'] ) );
+        	update_post_meta( $post_id, 'noo_print_id', wp_kses( $_POST['noo_print_box_text'],NARNOO_DISTRIBUTOR_I18N_DOMAIN ) );
     	}
 
 	}
