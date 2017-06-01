@@ -2,7 +2,7 @@
 
 class Distributor extends WebClient {
 
-    public $distributor_url = 'http://connect.narnoo.com/distributor_dev/';
+    public $distributor_url = 'https://connect.narnoo.com/distributor_dev/';
     public $authen;
 
     public function __construct($authenticate) {
@@ -26,7 +26,7 @@ class Distributor extends WebClient {
 
         $method = 'images';
         if(!empty($page)){
-            $this->setUrl($this->distributor_url . $method.'?'.$page);
+            $this->setUrl($this->distributor_url . $method.'?page='.$page);
         }else {
             $this->setUrl($this->distributor_url . $method);
         }
@@ -126,13 +126,13 @@ class Distributor extends WebClient {
     ***************/
 
     
-    public function albumCreate($dst_id,$album_name) {
+    public function albumCreate($album_name) {
 
         $method = 'album_create';
         
 
         $this->setUrl($this->distributor_url . $method);
-        $this->setPost( "id=".$dst_id."&name=".trim($album_name) );
+        $this->setPost( "name=".trim($album_name) );
         try {
             return json_decode( $this->getResponse($this->authen) );
         } catch (Exception $e) {
@@ -154,18 +154,20 @@ class Distributor extends WebClient {
         }
     }
     
-    public function albumRemoveImage($dst_id,$album_id,$image_id) {
+    public function albumRemoveImage($image_id,$album_id) {
 
         $method = 'album_remove_image';
         
 
         $this->setUrl($this->distributor_url . $method);
-        $this->setPost( "id=".$dst_id."&album_id=".$album_id."&image_id=".$image_id );
+        $this->setPost( "album_id=".$album_id."&image_id=".$image_id );
         try {
             return json_decode( $this->getResponse($this->authen) );
         } catch (Exception $e) {
             return 'Error: ' . $e->getMessage();
         }
+
+       
     }
     
     public function editBrochureCaption($dst_id,$bro_id,$caption) {
@@ -246,21 +248,22 @@ class Distributor extends WebClient {
     * 
     ***************/
 
-    public function albumAddImage($dst_id,$album_id,$image_id) {
+    public function albumAddImage($image_id,$album_id) {
 
         $method = 'album_add_image';
         
 
-        $this->setUrl($this->distributor_url . $method);
+       $this->setUrl($this->distributor_url . $method);
         $this->setPost( "id=".$dst_id."&album_id=".$album_id."&image_id=".$image_id );
         try {
             return json_decode( $this->getResponse($this->authen) );
         } catch (Exception $e) {
             return 'Error: ' . $e->getMessage();
         }
+
     }
-    
-    public function searchMedia($type, $media_id=NULL, $location=NULL, $category=NULL, $subcategory=NULL, $keywords=NULL, $privilege=NULL) {
+    //$type, $media_id=NULL, $location=NULL, $category=NULL, $subcategory=NULL, $keywords=NULL, $privilege=NULL
+    public function searchMedia($type, $media_id=NULL, $keywords=NULL, $page=1) {
 
         $method = 'search_media';
         
@@ -269,7 +272,7 @@ class Distributor extends WebClient {
         if(!empty($media_id)){
         $post_search .= '&id='.$media_id;
         }
-        if(!empty($location)){
+       /* if(!empty($location)){
         $post_search .= '&location='.$location;
         }
         if(!empty($category)){
@@ -278,12 +281,17 @@ class Distributor extends WebClient {
         if(!empty($subcategory)){
         $post_search .= '&subCategory='.$subcategory;
         }
+        if(!empty($privilege)){
+        $post_search .= '&privilege='.$privilege;
+        }*/
+
         if(!empty($keywords)){
         $post_search .= '&keywords='.$keywords;
         }
-        if(!empty($privilege)){
-        $post_search .= '&privilege='.$privilege;
-        }
+
+        $post_search .= '&page='.$page;
+
+        
         
         
 
@@ -291,6 +299,23 @@ class Distributor extends WebClient {
         $this->setPost( $post_search );
         try {
            // return $post_search;
+            return json_decode( $this->getResponse($this->authen) );
+        } catch (Exception $e) {
+            return 'Error: ' . $e->getMessage();
+        }
+
+        //return json_encode( $post_search );
+    }
+
+
+    public function downloadImage($imageId) {
+
+        $method = 'download_image';
+        
+
+        $this->setUrl($this->distributor_url. $method. '/' .$imageId);
+        $this->setGet();
+        try {
             return json_decode( $this->getResponse($this->authen) );
         } catch (Exception $e) {
             return 'Error: ' . $e->getMessage();

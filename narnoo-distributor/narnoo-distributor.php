@@ -42,28 +42,13 @@ require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-helper.
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-categories-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operators-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-add-operators-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-albums-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-images-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-brochures-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-channels-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-videos-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-media-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-albums-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-images-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-brochures-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-videos-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-products-accordion-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-media-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-images-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-brochures-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-videos-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-operator-media-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-operator-images-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-operator-brochures-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-operator-videos-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-library-images-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-library-images-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-imported-media-meta-box.php' );
 
 // NARNOO PHP SDK 2.0 //
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/http/WebClient.php' );
