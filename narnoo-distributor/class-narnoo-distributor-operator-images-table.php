@@ -149,7 +149,7 @@ class Narnoo_Distributor_Operator_Images_Table extends Narnoo_Distributor_Operat
 
 
 				if ( ! is_array( $list->operator_images ) ) {
-					throw new Exception( sprintf( __( "Error retrieving images. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
+					throw new Exception( sprintf( __( "Error retrieving images. The operator has no images #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
 				}
 			} catch ( Exception $ex ) {
 				Narnoo_Distributor_Helper::show_api_error( $ex );
@@ -158,13 +158,27 @@ class Narnoo_Distributor_Operator_Images_Table extends Narnoo_Distributor_Operat
 		
 		if ( ! is_null( $list ) ) {
 			$data['total_pages'] = max( 1, intval( $list->total_pages ) );
-			foreach ( $list->operator_images as $image ) {
-				$item['thumbnail_image'] 	= $image->crop_image_path;
-				$item['caption'] 			= $image->image_caption;
-				$item['entry_date'] 		= $image->entry_date;
-				$item['image_id'] 			= $image->image_id;
-				$data['items'][] 			= $item;
+
+			/**
+			*
+			*	@date_modified: 08062017
+			*	@change_log: Added a check to see if images are empty
+			*
+			*/
+			if(!empty($list->operator_images)){
+
+				foreach ( $list->operator_images as $image ) {
+								$item['thumbnail_image'] 	= $image->crop_image_path;
+								$item['caption'] 			= $image->image_caption;
+								$item['entry_date'] 		= $image->entry_date;
+								$item['image_id'] 			= $image->image_id;
+								$data['items'][] 			= $item;
+							}
+			}else{
+
+				$data 			= null;
 			}
+			
 		}
 
 		return $data;

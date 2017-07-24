@@ -9,7 +9,7 @@ Author URI: http://www.narnoo.com/
 License: GPL2 or later
 */
 
-/*  Copyright 2017  Narnoo.com  (email : info@narnoo.com)
+/*  Copyright 2016  Narnoo.com  (email : info@narnoo.com)
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as
@@ -42,13 +42,28 @@ require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-helper.
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-categories-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operators-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-add-operators-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-albums-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-images-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-brochures-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-channels-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-videos-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-media-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-albums-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-images-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-brochures-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-videos-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-products-accordion-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-media-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-images-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-brochures-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-videos-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-operator-media-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-operator-images-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-operator-brochures-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-operator-videos-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-library-images-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-library-images-table.php' );
+//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-imported-media-meta-box.php' );
 
 // NARNOO PHP SDK 2.0 //
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/http/WebClient.php' );
@@ -80,40 +95,41 @@ class Narnoo_Distributor {
 			add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Categories_Table', 'load_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Operators_Table', 'load_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Search_Add_Operators_Table', 'load_scripts' ) );
-			add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Operator_Products_Accordion_Table', 'load_scripts' ) );
-			add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Search_Media_Table', 'load_scripts' ) );
-			add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Search_Operator_Media_Table', 'load_scripts' ) );
+			//add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Operator_Products_Accordion_Table', 'load_scripts' ) );
+			//add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Search_Media_Table', 'load_scripts' ) );
+			//add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Search_Operator_Media_Table', 'load_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( &$this, 'load_admin_scripts' ) );
 
 			add_filter( 'media_upload_tabs', array( &$this, 'add_narnoo_library_menu_tab' ) );
-			add_action( 'media_upload_narnoo_library', array( &$this, 'media_narnoo_library_menu_handle') );
-			add_action( 'media_upload_narnoo_distributor_library', array( &$this, 'media_narnoo_distributor_library_menu_handle') );
+			//add_action( 'media_upload_narnoo_library', array( &$this, 'media_narnoo_library_menu_handle') );
+			//add_action( 'media_upload_narnoo_distributor_library', array( &$this, 'media_narnoo_distributor_library_menu_handle') );
 
 			add_action( 'wp_ajax_narnoo_distributor_api_request', array( 'Narnoo_Distributor_Helper', 'ajax_api_request' ) );
-			add_action( 'wp_ajax_narnoo_add_image_to_wordpress_media_library', array( 'Narnoo_Distributor_Helper', 'ajax_add_image_to_wordpress_media_library' ) );
+			//add_action( 'wp_ajax_narnoo_add_image_to_wordpress_media_library', array( 'Narnoo_Distributor_Helper', 'ajax_add_image_to_wordpress_media_library' ) );
 
 			//Meta Boxes
-			add_action('add_meta_boxes', array( &$this, 'add_noo_album_meta_box'));
-			add_action( 'save_post', array( &$this, 'save_noo_album_meta_box'));
-			add_action('add_meta_boxes', array( &$this, 'add_noo_print_meta_box'));
-			add_action( 'save_post', array( &$this, 'save_noo_print_meta_box'));
+			add_action('add_meta_boxes', 	array( &$this, 'add_noo_album_meta_box'));
+			add_action( 'save_post', 		array( &$this, 'save_noo_album_meta_box'));
+			add_action('add_meta_boxes', 	array( &$this, 'add_noo_print_meta_box'));
+			add_action( 'save_post', 		array( &$this, 'save_noo_print_meta_box'));
+			add_action('add_meta_boxes', 	array( &$this, 'add_noo_operator_listing_meta_box'));
+			add_action( 'save_post', 		array( &$this, 'save_noo_operator_listing'));
 
 			//Meta Boxes - Operators
-			add_action('add_meta_boxes', array( &$this, 'add_noo_op_album_meta_box'));
-			add_action( 'save_post', array( &$this, 'save_noo_op_album_meta_box'));
+			add_action('add_meta_boxes', 	array( &$this, 'add_noo_op_album_meta_box'));
+			add_action( 'save_post', 		array( &$this, 'save_noo_op_album_meta_box'));
 
 
 			//new Narnoo_Distributor_Imported_Media_Meta_Box();
 		} else {
 
-			add_action( 'wp_enqueue_scripts', array( &$this, 'load_scripts' ) );
+			//add_action( 'wp_enqueue_scripts', array( &$this, 'load_scripts' ) );
 			add_filter( 'widget_text', 'do_shortcode' );
 		}
 
 		add_action( 'wp_ajax_narnoo_distributor_lib_request', 			array( &$this, 'narnoo_distributor_ajax_lib_request' ) );
 		add_action( 'wp_ajax_nopriv_narnoo_distributor_lib_request', 	array( &$this, 'narnoo_distributor_ajax_lib_request' ) );
 		add_filter( 'pre_get_posts', 									array( &$this, 'add_cpts_to_search') );
-		add_shortcode('category_listings', 								array( &$this, 'narnoo_listings_child_pages') );
 	}
 
 	/**
@@ -287,19 +303,19 @@ class Narnoo_Distributor {
 
 		// add main Narnoo Imports menu
 		add_menu_page(
-			__( 'Imported Operators', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			__( 'Imported Operators', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+			__( 'Listings', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+			__( 'Listings', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 			'manage_options',
 			'narnoo-distributor-categories',
 			array( &$this, 'categories_page' ),
-			NARNOO_DISTRIBUTOR_PLUGIN_URL . 'images/icon-products-16.png',
+			'dashicons-location',
 			12
 		);
 
 		// add submenus to Narnoo Imports menu
 		$page = add_submenu_page(
 			'narnoo-distributor-categories',
-			__( 'Narnoo Imports - Categories', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+			__( 'Listings - Categories', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 			__( 'Categories', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 			'manage_options',
 			'narnoo-distributor-categories',
@@ -645,7 +661,112 @@ class Narnoo_Distributor {
 		</div>
 		<?php
 	}
+	/*
+	*
+	*	title: Narnoo add narnoo album to a page
+	*	date created: 15-09-16
+	*/
+	function add_noo_operator_listing_meta_box()
+	{
 
+	            add_meta_box(
+	                'noo-operator-listing-class',      		// Unique ID
+				    'Enter Operator Listing Criteria', 		 		    // Title
+				    array( &$this,'box_display_operator_listing'),    // Callback function
+				    array('page','destination','post'),         					// Admin page (or post type)
+				    'normal',         					// Context
+				    'low'         					// Priority
+	             );
+
+	}
+	/*
+	*
+	*	title: Display the operator listings box
+	*	date created: 15-09-16
+	*/
+	function box_display_operator_listing( $post )
+	{
+		global $post;
+	    //$values = get_post_custom( $post->ID );
+	    $_listsuburb 		= get_post_meta($post->ID,'product_listing_suburb',true);
+	    $_listsubCateory 	= get_post_meta($post->ID,'product_listing_subcategory',true);
+	    $_listcategory 		= get_post_meta($post->ID,'product_listing_category',true);
+	    $_listtitle 		= get_post_meta($post->ID,'product_listing_title',true);
+	    $_listpostcode 		= get_post_meta($post->ID,'product_listing_postcode',true);
+	   
+	    // We'll use this nonce field later on when saving.
+	    wp_nonce_field( 'box_display_operator_nonce', 'box_display_operator_listing_nonce' );
+
+
+	    ?>
+	    <p>
+	        <label for="listing_search_suburb">Listing Box Title:</label>
+	        <input type="text" name="listing_search_title" id="listing_search_title" value="<?php echo $_listtitle; ?>" style="width:100%"/>
+	    </p>
+	    <p>
+	    	<small><em>Enter the title for the listings search box</em></small>
+	    </p>
+	    <p>
+	        <label for="listing_search_suburb">Listing Search - By Cateogry:</label>
+	        <input type="text" name="listing_search_category" id="listing_search_category" value="<?php echo $_listcategory; ?>" style="width:100%"/>
+	    </p>
+        <p>
+        	<small><em>Enter the any categories you would like to search by. Separate multiple categories by using a comma ','</em></small>
+        </p>
+        <p>
+	        <label for="listing_search_suburb">Listing Search - By Suburb:</label>
+	        <input type="text" name="listing_search_suburb" id="listing_search_suburb" value="<?php echo $_listsuburb; ?>" style="width:100%"/>
+	    </p>
+	    <p>
+	    	<small><em>Enter the suburbs you would like to search by. Separate multiple suburbs by using a comma ','. [note - recommended to use either Suburb or Post Code not both]</em></small>
+	    </p>
+	    <p>
+	        <label for="listing_search_suburb">Listing Search - By Postcode:</label>
+	        <input type="text" name="listing_search_postcode" id="listing_search_postcode" value="<?php echo $_listpostcode; ?>" style="width:100%"/>
+	    </p>
+	    <p>
+	    	<small><em>Enter the postcodes you would like to search by. Separate multiple postcodes by using a comma ','. [note - recommended to use either Suburb or Post Code not both]</em></small>
+	    </p>
+	    <p>
+	        <label for="listing_search_suburb">Listing Search - By Sub Cateogry:</label>
+	        <input type="text" name="listing_search_subcategory" id="listing_search_subcategory" value="<?php echo $_listsubCateory; ?>" style="width:100%"/>
+	    </p>
+	    <p>
+	    	<small><em>Enter the any sub-categories you would like to search by. Separate multiple sub-categories by using a comma ','</em></small>
+	    </p>
+	  	<?php
+
+	}
+
+	function save_noo_operator_listing( $post_id ){
+
+		// Bail if we're doing an auto save
+	    if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+
+	    // if our nonce isn't there, or we can't verify it, bail
+	    if( !isset( $_POST['box_display_operator_listing_nonce'] ) || !wp_verify_nonce( $_POST['box_display_operator_listing_nonce'], 'box_display_operator_nonce' ) ) return;
+
+	    // if our current user can't edit this post, bail
+	    if( !current_user_can( 'edit_post' ) ) return;
+
+    	if( isset( $_POST['listing_search_title'] ) ){
+        	update_post_meta( $post_id, 'product_listing_title', esc_attr( $_POST['listing_search_title'] ) );
+    	}
+    	if( isset( $_POST['listing_search_category'] ) ){
+        	update_post_meta( $post_id, 'product_listing_category', esc_attr( $_POST['listing_search_category'] ) );
+    	}
+    	if( isset( $_POST['listing_search_suburb'] ) ){
+        	update_post_meta( $post_id, 'product_listing_suburb', esc_attr( $_POST['listing_search_suburb'] ) );
+    	}
+    	if( isset( $_POST['listing_search_postcode'] ) ){
+        	update_post_meta( $post_id, 'product_listing_postcode', esc_attr( $_POST['listing_search_postcode'] ) );
+    	}
+    	if( isset( $_POST['listing_search_subcategory'] ) ){
+        	update_post_meta( $post_id, 'product_listing_subcategory', esc_attr( $_POST['listing_search_subcategory'] ) );
+    	}
+    	
+
+	}
 
 	/*
 	*
@@ -955,29 +1076,4 @@ class Narnoo_Distributor {
 		</style>
 		<?php
 	}
-
-
-
-/*******************************************************************************
-			SHORTCODE FOR DISPLAYING CHILDREN OF LISTINGS PAGES
-/*******************************************************************************/
-
-	
-	function narnoo_listings_child_pages() { 
-
-		ob_start();
-		require( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/shortcode/child-pages.php' );
-		return ob_get_clean();  
-
-	}
-
-/*******************************************************************************
-			SHORTCODE FOR DISPLAYING CHILDREN OF LISTINGS PAGES
-/*******************************************************************************/
-
-
-
-
-
-
 }

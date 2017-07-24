@@ -855,7 +855,7 @@ return ob_get_clean();
         }
 
         // get operator details
-        $operator = $requestOperator->builder( $operator_id );
+        $operator = $requestOperator->builder( $operator_id,NULL,NULL,NULL,TRUE,TRUE ); //UPDATED THIS LINE OF CODE
         
         //print_r($operator);
         //die();
@@ -920,9 +920,14 @@ return ob_get_clean();
 
             // set a feature image for this post
             if( !empty( $operator->feature_image->xxlarge_image_path ) ){
-                $url = "https:" . $operator->feature_image->xxlarge_image_path;
-                $desc = $operator->business_name . " feature image";
-                $feature_image = media_sideload_image($url, $post_id, $desc);
+                $url            = "https:" . $operator->feature_image->xxlarge_image_path;
+                $desc           = $operator->business_name . " feature image";
+                $feature_image  = media_sideload_image($url, $post_id, $desc, 'src');
+                if(!empty($feature_image)){
+                    global $wpdb;
+                    $attachment     = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $feature_image )); 
+                    set_post_thumbnail( $post_id, $attachment[0] );
+                }
             }
 
             $success_message = __('Success! Imported operator details to new %1s post (%2s)', NARNOO_DISTRIBUTOR_I18N_DOMAIN);
@@ -943,6 +948,14 @@ return ob_get_clean();
         update_post_meta($post_id, 'phone',                  $operator->phone);
         update_post_meta($post_id, 'url',                    $operator->url);
         update_post_meta($post_id, 'email',                  $operator->email);
+        update_post_meta($post_id, 'latitude',               $operator->latitude);
+        update_post_meta($post_id, 'longitude',              $operator->longitude);
+        //Import social media links
+        update_post_meta($post_id, 'facebook',               $operator->operator_social->facebook);
+        update_post_meta($post_id, 'twitter',                $operator->operator_social->twitter);
+        update_post_meta($post_id, 'instagram',              $operator->operator_social->instagram);
+        update_post_meta($post_id, 'youtube',                $operator->operator_social->youtube);
+        update_post_meta($post_id, 'tripadvisor',            $operator->operator_social->tripadvisor_url);
 
         /*
         Import the products? Or do we just use the operator information?
@@ -993,6 +1006,66 @@ return ob_get_clean();
         // return response
         echo json_encode(array('success' => 'success'));
         die();
+    }
+    /**
+    *
+    *   @comment: Formater to make sure all URL have HTTPS infront of them
+    *   @usage: When rendering URL to the page.
+    */
+    public function url_formating($url){
+        if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+            $url = "http://" . $url;
+        }
+        return $url;
+    }
+    /**
+    *
+    *   @comment: Formater to make sure all phone numbers are correct
+    *   @usage: When rendering phone number to the page.
+    */
+    public function phone_formating($phone = '', $trim = true){
+
+               // If we have not entered a phone number just return empty
+                if (empty($phone)) {
+                    return '';
+                }
+
+                // Strip out any extra characters that we do not need only keep letters and numbers
+                $phone = preg_replace("/[^0-9A-Za-z]/", "", $phone);
+
+
+
+                // If we have a number longer than 11 digits cut the string down to only 11
+                // This is also only ran if we want to limit only to 11 characters
+                if ($trim == true && strlen($phone)>12) {
+                    $phone = substr($phone, 0, 12);
+                }
+
+                // Perform phone number formatting here
+                if (strlen($phone) == 7) {
+                    return preg_replace("/([0-9a-zA-Z]{3})([0-9a-zA-Z]{4})/", "$1-$2", $phone);
+                } elseif (strlen($phone) == 9) {
+                    return preg_replace("/([0-9a-zA-Z]{1})([0-9a-zA-Z]{4})([0-9a-zA-Z]{4})/", "+61 (0$1) $2-$3", $phone);
+                }elseif (strlen($phone) == 10) {
+
+                        //Look for 1800 + 1300 numbers
+                        if (strpos($phone, '1800') !== false) {
+                          return preg_replace("/([0-9a-zA-Z]{4})([0-9a-zA-Z]{2})([0-9a-zA-Z]{2})([0-9a-zA-Z]{2})/", "$1 $2 $3 $4", $phone);
+                        }elseif (strpos($phone, '1300') !== false) {
+                          return preg_replace("/([0-9a-zA-Z]{4})([0-9a-zA-Z]{2})([0-9a-zA-Z]{2})([0-9a-zA-Z]{2})/", "$1 $2 $3 $4", $phone);
+                        }else{
+                          return preg_replace("/([0-9a-zA-Z]{2})([0-9a-zA-Z]{4})([0-9a-zA-Z]{4})/", "+61 ($1) $2-$3", $phone);
+                        }
+
+                } elseif (strlen($phone) == 11) { //number has the only 7 in it...
+                    return preg_replace("/([0-9a-zA-Z]{2})([0-9a-zA-Z]{1})([0-9a-zA-Z]{4})([0-9a-zA-Z]{4})/", "+$1 (0$2) $3-$4", $phone);
+                }elseif (strlen($phone) == 12) { //number has the 07 in it...
+                    return preg_replace("/([0-9a-zA-Z]{2})([0-9a-zA-Z]{2})([0-9a-zA-Z]{4})([0-9a-zA-Z]{4})/", "+$1 ($2) $3-$4", $phone);
+                }
+
+                return $phone;
+
+
     }
 
 }

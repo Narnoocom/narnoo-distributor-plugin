@@ -292,13 +292,12 @@ class Narnoo_Distributor_Operators_Table extends WP_List_Table {
 				Narnoo_Distributor_Helper::show_api_error( $ex );
 			}
 		}
-		//print_r($operators);
 		if ( ! is_null( $list ) ) {
 			// get list of imported operator IDs
 			$imported_ids = Narnoo_Distributor_Helper::get_imported_operator_ids();
 
 			$data['total_pages'] = max( 1, intval( $list->total_pages ) );
-
+        
 			foreach ( $operators as $operator ) {
 
 
