@@ -2,7 +2,7 @@
 
 class Operatorconnect extends WebClient {
 
-    public $url = 'http://connect.narnoo.com/connect_dev/';
+    public $url = 'https://connect.narnoo.com/connect_dev/';
     public $authen;
 
     public function __construct($authenticate) {
@@ -434,18 +434,25 @@ class Operatorconnect extends WebClient {
         }
     }
 
+    /*
+    *   @dateModified: 25.07.2017
+    *   @comment: Add operator instead of id to parameter
+    *
+    */
     public function addOperator($op_id) {
 
         $method = 'operator_add';
 
 
-        $this->setUrl($this->url . $method);
-        $this->setPost( "id=".$op_id);
+       $this->setUrl($this->url . $method);
+        $this->setPost( "operator=".$op_id);
         try {
             return json_decode( $this->getResponse($this->authen) );
         } catch (Exception $e) {
             return 'Error: ' . $e->getMessage();
         }
+
+        return $op_id;
     }
 
     public function getOperators($page=1) {
@@ -482,6 +489,25 @@ class Operatorconnect extends WebClient {
             return 'Error: ' . $e->getMessage();
        }
 
+    }
+
+    /*
+    *
+    *   dateCreated: 25.07.2017
+    *   @comment: Created to search operators by business name
+    */
+    public function searchOperators($name,$page=1)
+    {
+        $method = 'search';
+
+
+        $this->setUrl($this->url . $method .'?operator='. $name . '&page=' .$page);
+        $this->setGet();
+        try {
+            return json_decode( $this->getResponse($this->authen) );
+        } catch (Exception $e) {
+            return 'Error: ' . $e->getMessage();
+        }
     }
 
 }

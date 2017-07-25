@@ -6,22 +6,13 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 	
 	public $func_type = 'search';
 	
-	public $search_country     = '',
-	       $search_category    = '',
-	       $search_subcategory = '',
-	       $search_state       = '',
-	       $search_suburb      = '',
-		   $search_postal_code = '';
+	public $search_name        = '';
 		
 	function __construct( $args = array() ) {
 		parent::__construct( $args );
 		
-		$this->search_country      = isset( $_POST['search-submit'] ) && isset( $_POST['search_country'    ] ) ? trim( $_POST['search_country'    ] ) : ( isset( $_GET['search_country'    ] ) ? trim( $_GET['search_country'    ] ) : $this->search_country     );
-		$this->search_category     = isset( $_POST['search-submit'] ) && isset( $_POST['search_category'   ] ) ? trim( $_POST['search_category'   ] ) : ( isset( $_GET['search_category'   ] ) ? trim( $_GET['search_category'   ] ) : $this->search_category    );
-		$this->search_subcategory  = isset( $_POST['search-submit'] ) && isset( $_POST['search_subcategory'] ) ? trim( $_POST['search_subcategory'] ) : ( isset( $_GET['search_subcategory'] ) ? trim( $_GET['search_subcategory'] ) : $this->search_subcategory );
-		$this->search_state        = isset( $_POST['search-submit'] ) && isset( $_POST['search_state'      ] ) ? trim( $_POST['search_state'      ] ) : ( isset( $_GET['search_state'      ] ) ? trim( $_GET['search_state'      ] ) : $this->search_state       );
-		$this->search_suburb       = isset( $_POST['search-submit'] ) && isset( $_POST['search_suburb'     ] ) ? trim( $_POST['search_suburb'     ] ) : ( isset( $_GET['search_suburb'     ] ) ? trim( $_GET['search_suburb'     ] ) : $this->search_suburb      );
-		$this->search_postal_code  = isset( $_POST['search-submit'] ) && isset( $_POST['search_postal_code'] ) ? trim( $_POST['search_postal_code'] ) : ( isset( $_GET['search_postal_code'] ) ? trim( $_GET['search_postal_code'] ) : $this->search_postal_code );
+		$this->search_name      	= isset( $_POST['search-submit'] ) && isset( $_POST['search_name'    ] ) ? trim( $_POST['search_name'    ] ) : ( isset( $_GET['search_name'    ] ) ? trim( $_GET['search_name'    ] ) : $this->search_name    );
+		
 	}
 	
 	function column_default( $item, $column_name ) {
@@ -36,14 +27,57 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 			case 'latitude':
 			case 'longitude':
 			case 'postcode':
-			case 'keywords':
+			//case 'keywords':
 				return $item[ $column_name ];
 			default:
 				return print_r( $item, true );
 		}
 	}
 
-	function column_operator_businessname( $item ) {   
+	function column_operator_businessname( $item ) {  
+		
+		if ( $item['imported'] ) {
+		
+			$import_action = __( 'Re-import', NARNOO_DISTRIBUTOR_I18N_DOMAIN );
+			$actions = array(
+			
+			'import'    	=> sprintf(
+									'<a href="?%s">%s</a>',
+									build_query(
+										array(
+											'page' => isset( $_REQUEST['page'] ) ? $_REQUEST['page'] : '',
+											'paged' => $this->get_pagenum(),
+											'action' => 'import',
+											'operators[]' => $item['operator_id'],
+											'operator_names[]' => $item['operator_businessname'],
+										)
+									),
+									$import_action
+								)
+		);
+			
+		} elseif( !empty($item['connected']) && empty($item['imported'])) {
+		
+			$import_action = __( 'Import', NARNOO_DISTRIBUTOR_I18N_DOMAIN );
+			$actions = array(
+			
+			'import'    	=> sprintf(
+									'<a href="?%s">%s</a>',
+									build_query(
+										array(
+											'page' => isset( $_REQUEST['page'] ) ? $_REQUEST['page'] : '',
+											'paged' => $this->get_pagenum(),
+											'action' => 'import',
+											'operators[]' => $item['operator_id'],
+											'operator_names[]' => $item['operator_businessname'],
+										)
+									),
+									$import_action
+								)
+		);
+		
+		} else{
+		
 		$actions = array(
 			'add'    	=> sprintf( 
 									'<a href="?%s">%s</a>', 
@@ -55,17 +89,16 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 											'action'             => 'add', 
 											'operators[]'        => $item['operator_id'], 
 											'operator_names[]'   => $item['operator_businessname'],
-											'search_country'     => $this->search_country,
-											'search_category'    => $this->search_category,
-											'search_subcategory' => $this->search_subcategory,
-											'search_state'       => $this->search_state,
-											'search_suburb'      => $this->search_suburb,
-											'search_postal_code' => $this->search_postal_code
+											'search_name'     	 => $this->search_name
 										)
 									),
 									__( 'Add', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
-								),
+								)
 		);
+	
+		}
+		
+		
 		
 		return sprintf( 
 			'%1$s <br /> %2$s', 
@@ -94,16 +127,16 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 			'latitude'              => __( 'Latitude', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 			'longitude'             => __( 'Longitude', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 			'postcode'              => __( 'Postcode', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			'keywords'              => __( 'Keywords', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
+			//'keywords'              => __( 'Keywords', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
 		);
 	}
 	
-	function get_bulk_actions() {
+	/*function get_bulk_actions() {
 		$actions = array(
 			'add'		=> __( 'Add', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
 		);
 		return $actions;
-	}
+	}*/
 
 	/**
 	 * Process actions and returns true if the rest of the table SHOULD be rendered.
@@ -120,27 +153,20 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 		}
 				
 		$action = $this->current_action();
-		if ( isset( $_REQUEST['add_list'] ) ) {
-			$action = 'add';
-		} else if ( isset( $_REQUEST['search-submit'] ) ) {
+		if ( isset( $_REQUEST['search-submit'] ) ) {
 			$action = false;
 		}
 		if ( false !== $action ) {
-			if ( isset( $_REQUEST['add_list'] ) ) {
-				$operator_ids = empty( $_REQUEST['add_operators_list'] ) ? array() : explode( ',', $_REQUEST['add_operators_list'] );
-			} else {
-				$operator_ids = empty( $_REQUEST['operators'] ) ? array() : $_REQUEST['operators'];
-			}
 			
+			$operator_ids = empty( $_REQUEST['operators'] ) ? array() : $_REQUEST['operators'];
 			$num_ids = count( $operator_ids );
 			if ( empty( $operator_ids ) || ! is_array( $operator_ids ) || $num_ids === 0 ) {
-				if ( isset( $_REQUEST['add_list'] ) ) {
-					Narnoo_Distributor_Helper::show_error( __( 'Please key in the IDs of one or more operators to add.', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) );
-				}
+					Narnoo_Distributor_Helper::show_error( __( 'Please search for an operator.', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) );
+				
 				return true;				
 			}
 			
-			if ( ! isset( $_REQUEST['add_list'] ) ) {
+			if ( $action === 'add' ) {
 				$operator_names = isset( $_REQUEST['operator_names'] ) ? $_REQUEST['operator_names'] : array();
 				$num_names = count( $operator_names );
 				if ( empty( $operator_names ) || ! is_array( $operator_names ) || $num_names !== $num_ids ) {
@@ -148,6 +174,22 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 				}
 				foreach( $operator_names as $key => $operator_name ) {
 					$operator_names[ $key ] = stripslashes( $operator_name );
+				}
+			}
+
+			if ( $action === 'import' ) {
+				// determine whether we need to show confirmation screen for re-importing of existing operators
+				$imported_ids = Narnoo_Distributor_Helper::get_imported_operator_ids();
+				$existing_operator_ids = array();
+				foreach( $operator_ids as $key => $operator_id ) {
+					if ( in_array( $operator_id, $imported_ids ) ) {
+						$existing_operator_ids[] = $operator_id;
+						$existing_operator_names[] = $operator_names[ $key ];
+					}
+				}
+
+				if ( empty( $existing_operator_ids ) ) {
+					$action = 'do_import';
 				}
 			}
 			
@@ -162,14 +204,64 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 					<?php
 					foreach( $operator_ids as $key => $id ) {
 						$id = trim( $id );
-						Narnoo_Distributor_Helper::print_ajax_script_body( 
+						Narnoo_Distributor_Helper::print_operator_ajax_script_body( 
 							$id, 'addOperator', array( $id ),
-							'ID #' . $id . ( isset( $_REQUEST['add_list']) ? '' : ': ' . esc_html( $operator_names[ $key ] ) )
+							'ID #' . $id . ': ' . esc_html( $operator_names[ $key ] )
 						);
 					}
 					?>
 					</ol>
 					<?php 
+					Narnoo_Distributor_Helper::print_ajax_script_footer( $num_ids, __( 'Back to operators', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) );
+
+					return false;
+					// confirm re-import of existing operators
+				case 'import':
+					?>
+					<h3><?php _e( 'Confirm re-import', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></h3>
+					<p><?php echo sprintf( __( 'The following operator(s) have already been imported to Wordpress posts. Re-importing will overwrite any custom changes made to the imported fields. Please confirm re-import of the following %d operator(s):', NARNOO_DISTRIBUTOR_I18N_DOMAIN ), count( $existing_operator_ids ) ); ?></p>
+					<ol>
+					<?php
+					foreach ( $existing_operator_ids as $key => $id ) {
+						?>
+						<li><span>ID #<?php echo $id; ?>: <?php echo esc_html( $existing_operator_names[ $key ] ); ?></span></li>
+						<?php
+					}
+					?>
+					</ol>
+					<?php
+					foreach( $operator_ids as $key => $id ) {
+						?>
+						<input type="hidden" name="operators[]" value="<?php echo $id; ?>" />
+						<input type="hidden" name="operator_names[]" value="<?php echo esc_attr( $operator_names[ $key ] ); ?>" />
+						<?php
+					}
+					?>
+					<input type="hidden" name="action" value="do_import" />
+					<p class="submit">
+						<input type="submit" name="submit" id="submit" class="button-secondary" value="<?php _e( 'Confirm Re-import' ); ?>" />
+						<input type="submit" name="cancel" id="cancel" class="button-secondary" value="<?php _e( 'Cancel' ); ?>" />
+					</p>
+					<?php
+
+					return false;
+
+				// perform actual import
+				case 'do_import':
+					?>
+					<h3><?php _e( 'Import', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></h3>
+					<p><?php echo sprintf( __( "Importing the following %s operator(s):", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $num_ids ); ?></p>
+					<ol>
+					<?php
+					foreach( $operator_ids as $key => $id ) {
+						Narnoo_Distributor_Helper::print_ajax_script_body(
+							$id, 'import_operator', array( $id ),
+							'ID #' . $id . ': ' . $operator_names[ $key ], 'self', true
+						);
+					}
+					?>
+					</ol>
+					<?php
 					Narnoo_Distributor_Helper::print_ajax_script_footer( $num_ids, __( 'Back to operators', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) );
 
 					return false;
@@ -184,6 +276,8 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 	 * Request the current page data from Narnoo API server.
 	 **/
 	function get_current_page_data() {
+
+
 		$data = array( 'total_pages' => 1, 'items' => array() );
 		
 		$list = null;
@@ -192,16 +286,25 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 
         $request = Narnoo_Distributor_Helper::init_api('operator');
 
+
 		if ( ! is_null( $request ) ) {
 			
 			try {
-				
 
-				$list = $request->searchOperators( $this->search_country, $this->search_category, $this->search_subcategory, $this->search_state, $this->search_suburb, $this->search_postal_code, $current_page );
+			
+				//THIS IS THE SEARCH API CALL
+				$list = $request->searchOperators( $this->search_name, $current_page );
 				
-				if ( ! is_array( $list->search_operators ) ) {
-					throw new Exception( sprintf( __( "Error retrieving operators. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
+				//print_r($list);
+				if(!empty($this->search_name)){
+
+					if ( ! is_array( $list->response ) ) {
+						throw new Exception( sprintf( __( "Error retrieving operators. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
+					}
+
 				}
+
+				
 		
 
 			} catch ( Exception $ex ) {
@@ -212,23 +315,29 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 		}
 		
 		if ( ! is_null( $list ) ) {
-			$data['total_pages'] = max( 1, intval( $list->total_pages ) );
-			foreach ( $list->search_operators as $operator ) {
-				$item['operator_id'          ] = $operator->operator_id;
+			// get list of imported operator IDs
+			$imported_ids = Narnoo_Distributor_Helper::get_imported_operator_ids();
+
+			//$data['total_pages'] = max( 1, intval( $list->total_pages ) );
+			foreach ( $list->response as $operator ) {
+				$item['operator_id'          ] = $operator->narnooId;
 				$item['category'             ] = $operator->category;
-				$item['sub_category'         ] = $operator->sub_category;
-				$item['operator_businessname'] = $operator->operator_businessname;
-				$item['country_name'         ] = $operator->country_name;
+				$item['sub_category'         ] = $operator->subCategory;
+				$item['operator_businessname'] = $operator->operator;
+				$item['country_name'         ] = $operator->country;
 				$item['state'                ] = $operator->state;
 				$item['suburb'               ] = $operator->suburb;
 				$item['latitude'             ] = $operator->latitude;
 				$item['longitude'            ] = $operator->longitude;
-				$item['postcode'             ] = $operator->postcode;
-				$item['keywords'             ] = $operator->keywords;
+				$item['postcode'             ] = $operator->postCode;
+				$item['connected'            ] = $operator->connected;
+				//$item['keywords'             ] = $operator->keywords;
+				$item['imported']		 = in_array(  $item['operator_id' ], $imported_ids );
+				
 				$data['items'][] = $item;				
 			}
 		}
-
+		//print_r($data);
 		return $data;
 	}
 
@@ -244,36 +353,21 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 		
 		$this->_column_headers = $this->get_column_info();
 			
-		//$data = $this->get_current_page_data();
-		//$this->items = $data['items'];
+		$data = $this->get_current_page_data();
+		$this->items = $data['items'];
 		
 		$this->set_pagination_args( array(
-		//	'total_items'	=> count( $data['items'] ),
+			'total_items'	=> count( $data['items'] ),
 		//	'total_pages'	=> $data['total_pages']
 		) );  
 		
 		?>
 		<p class="narnoo-operators-add-operators-box">
-			<label for="add_operators_list"><?php _e( 'Enter IDs of operators to add (separate each ID by a comma e.g. <code>12, 13</code>):', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></label>
-			<input id="add_operators_list" name="add_operators_list" type="text" value="<?php echo isset( $_REQUEST['add_operators_list'] ) ? esc_attr( $_REQUEST['add_operators_list'] ) : ''; ?>" />
-			<input id="add_list" class="button" type="submit" name="add_list" value="<?php _e( 'add', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?>" />
+			<label for="add_operators_list"><?php _e( 'Enter the business name of the operator you want to search: ', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></label>
+			<input id="search_name" name="search_name" type="text" value="<?php echo isset( $_REQUEST['add_operators_list'] ) ? esc_attr( $_REQUEST['add_operators_list'] ) : ''; ?>" />
+			<input id="search-submit" class="button" type="submit" name="search-submit" value="<?php _e( 'Search', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?>" />
 		</p>
-		<p class="narnoo-search-operators-box">
-			<span>Or search for operators using the form below:</span><br />
-			<label for="search_country"><?php _e( 'country:', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></label> 
-			<input id="search_country" name="search_country" type="text" value="<?php echo esc_attr( $this->search_country ); ?>" /><br /> 
-			<label for="search_category"><?php _e( 'category:', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></label> 
-			<input id="search_category" name="search_category" type="text" value="<?php echo esc_attr( $this->search_category ); ?>" /><br /> 
-			<label for="search_subcategory"><?php _e( 'subcategory:', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></label> 
-			<input id="search_subcategory" name="search_subcategory" type="text" value="<?php echo esc_attr( $this->search_subcategory ); ?>" /><br /> 
-			<label for="search_state"><?php _e( 'state:', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></label> 
-			<input id="search_state" name="search_state" type="text" value="<?php echo esc_attr( $this->search_state ); ?>" /><br /> 
-			<label for="search_suburb"><?php _e( 'suburb:', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></label> 
-			<input id="search_suburb" name="search_suburb" type="text" value="<?php echo esc_attr( $this->search_suburb ); ?>" /><br /> 
-			<label for="search_postal_code"><?php _e( 'postal_code:', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></label> 
-			<input id="search_postal_code" name="search_postal_code" type="text" value="<?php echo esc_attr( $this->search_postal_code ); ?>" />
-			<input id="search-submit" class="button" type="submit" name="search-submit" value="<?php _e( 'search', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?>" />
-		</p>
+		
 		<script type="text/javascript">
 			function updateQueryStringParameter(uri, key, value) {
 				var re = new RegExp("([?|&])" + key + "=.*?(&|$)", "i");
@@ -293,12 +387,7 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 					$form = $('#narnoo-search-add-operators-form');
 					if ($form.length > 0) {
 						new_query = $form.attr('action');
-						new_query = updateQueryStringParameter( new_query, 'search_country'    , $('#search_country'    ).val() );
-						new_query = updateQueryStringParameter( new_query, 'search_category'   , $('#search_category'   ).val() );
-						new_query = updateQueryStringParameter( new_query, 'search_subcategory', $('#search_subcategory').val() );
-						new_query = updateQueryStringParameter( new_query, 'search_state'      , $('#search_state'      ).val() );
-						new_query = updateQueryStringParameter( new_query, 'search_suburb'     , $('#search_suburb'     ).val() );
-						new_query = updateQueryStringParameter( new_query, 'search_postal_code', $('#search_postal_code').val() );
+						new_query = updateQueryStringParameter( new_query, 'search_name'    	, $('#search_name'    ).val() );
 						new_query = updateQueryStringParameter( new_query, 'paged', '1' );
 						$form.attr('action', new_query);
 					}

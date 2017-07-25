@@ -59,9 +59,8 @@ class Narnoo_Distributor_Helper {
         }
 
         /**
+        *
         *   Create authentication Header to access the API.
-        *   Media - distributor_media_plugin
-        *   Operator - primary_distributor_plugin
         *
         **/
 

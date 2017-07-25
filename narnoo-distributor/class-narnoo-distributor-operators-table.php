@@ -295,6 +295,7 @@ class Narnoo_Distributor_Operators_Table extends WP_List_Table {
 		if ( ! is_null( $list ) ) {
 			// get list of imported operator IDs
 			$imported_ids = Narnoo_Distributor_Helper::get_imported_operator_ids();
+			
 
 			$data['total_pages'] = max( 1, intval( $list->total_pages ) );
         
