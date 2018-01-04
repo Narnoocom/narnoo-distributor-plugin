@@ -67,6 +67,7 @@ require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operato
 
 // NARNOO PHP SDK 2.0 //
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/http/WebClient.php' );
+require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/authen.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/operatorconnect.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/distributor.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/listbuilder.php' );
@@ -392,13 +393,15 @@ class Narnoo_Distributor {
 			'api_settings_section'
 		);
 
+		/*
+		DELETE
 		add_settings_field(
 			'token_key',
 			__( 'Token key', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 			array( &$this, 'settings_token_key' ),
 			'narnoo_distributor_api_settings',
 			'api_settings_section'
-		);
+		);*/
 
 		add_settings_field(
 			'product_import',
@@ -429,10 +432,15 @@ class Narnoo_Distributor {
 		echo "<input id='secret_key' name='narnoo_distributor_settings[secret_key]' size='40' type='text' value='" . esc_attr($options['secret_key']). "' />";
 	}
 
+   /*
+	DELETE
+
     function settings_token_key() {
         $options = get_option('narnoo_distributor_settings');
         echo "<input id='token_key' name='narnoo_distributor_settings[token_key]' size='40' type='text' value='" . esc_attr($options['token_key']). "' />";
     }
+
+    */
 
     function settings_operator_import() {
         $options = get_option('narnoo_distributor_settings');
@@ -449,7 +457,7 @@ class Narnoo_Distributor {
 	function settings_sanitize( $input ) {
 		$new_input['access_key'] 		= trim( $input['access_key'] );
 		$new_input['secret_key'] 		= trim( $input['secret_key'] );
-        $new_input['token_key'] 		= trim( $input['token_key'] );
+        //$new_input['token_key'] 		= trim( $input['token_key'] );
         $new_input['operator_import']   = trim( $input['operator_import'] );
 		return $new_input;
 	}

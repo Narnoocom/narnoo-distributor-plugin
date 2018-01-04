@@ -53,9 +53,46 @@ class Narnoo_Distributor_Helper {
 
         // update this to include the access_key secret_key and access_token
         $options = get_option('narnoo_distributor_settings');
+       
 
-        if (empty($options['access_key']) || empty($options['secret_key']) || empty($options['token_key']) ) {
+        if ( empty($options['access_key']) || empty($options['secret_key'])  ) {
             return null;
+        }
+
+        /**
+        *
+        *   Store keys in a different setting option
+        *
+        */
+        $_token   = get_option( 'narnoo_distributor_token' );
+
+        
+        /**
+        *
+        *   Check to see if we have access keys and a token.
+        *
+        */
+        if( !empty( $options['access_key'] ) && !empty( $options['secret_key'] ) && empty($_token) ){
+            /**
+            *
+            *   Call the Narnoo authentication to return our access token
+            *
+            */
+            $requestToken = new Narnooauthen( $options['access_key'],$options['secret_key'] );
+            $token        =  $requestToken->authenticate();
+            if(!empty($token)){
+                /**
+                *
+                *   Update Narnoo access token
+                *
+                */
+                update_option( 'narnoo_distributor_token', $token, 'yes' );
+                
+            }else{
+                return null;
+            }
+
+
         }
 
         /**
@@ -67,7 +104,7 @@ class Narnoo_Distributor_Helper {
         $api_settings = array(
             "API-KEY: ".$options['access_key'],
             "API-SECRET-KEY: ".$options['secret_key'],
-            "Authorization: ".$options['token_key']
+            "Authorization: ".$_token
             );
 
 
