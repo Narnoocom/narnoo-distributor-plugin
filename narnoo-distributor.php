@@ -34,6 +34,7 @@ define( 'NARNOO_DISTRIBUTOR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'NARNOO_DISTRIBUTOR_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'NARNOO_DISTRIBUTOR_SETTINGS_PAGE', 'options-general.php?page=narnoo-distributor-api-settings' );
 
+
 // include files
 if( ! class_exists( 'WP_List_Table' ) ) {
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
@@ -50,8 +51,10 @@ require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operato
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-videos-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-library-images-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-library-images-table.php' );
-//require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-imported-media-meta-box.php' );
-
+// Page formating //
+require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/inti-cmb2.php' );
+require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/cmb2-tabs/inti.php' );
+require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'narnoo-listing-layout-helper.php' );
 // NARNOO PHP SDK 2.0 //
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/http/WebClient.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/authen.php' );
@@ -103,9 +106,9 @@ class Narnoo_Distributor {
 			add_action('add_meta_boxes', 	array( &$this, 'add_noo_operator_listing_meta_box'));
 			add_action( 'save_post', 		array( &$this, 'save_noo_operator_listing'));
 
-			//Meta Boxes - Operators
+			/*Meta Boxes - Operators
 			add_action('add_meta_boxes', 	array( &$this, 'add_noo_op_album_meta_box'));
-			add_action( 'save_post', 		array( &$this, 'save_noo_op_album_meta_box'));
+			add_action( 'save_post', 		array( &$this, 'save_noo_op_album_meta_box'));*/
 
 
 			//new Narnoo_Distributor_Imported_Media_Meta_Box();
@@ -145,7 +148,7 @@ class Narnoo_Distributor {
 					'show_ui' => true,
 					'show_in_menu' => 'narnoo-distributor-categories',
 					'show_in_admin_bar' => true,
-					'supports' => array( 'title', 'excerpt', 'thumbnail', 'editor', 'author', 'revisions', 'custom-fields', 'page-attributes' ),
+					'supports' => array( 'title', 'excerpt', 'thumbnail', 'editor', 'author', 'revisions', 'page-attributes' ),
 				)
 			);
 		}
