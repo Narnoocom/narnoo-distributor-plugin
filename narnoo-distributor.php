@@ -106,9 +106,9 @@ class Narnoo_Distributor {
 			add_action('add_meta_boxes', 	array( &$this, 'add_noo_operator_listing_meta_box'));
 			add_action( 'save_post', 		array( &$this, 'save_noo_operator_listing'));
 
-			/*Meta Boxes - Operators
+			//Meta Boxes - Operators
 			add_action('add_meta_boxes', 	array( &$this, 'add_noo_op_album_meta_box'));
-			add_action( 'save_post', 		array( &$this, 'save_noo_op_album_meta_box'));*/
+			add_action( 'save_post', 		array( &$this, 'save_noo_op_album_meta_box'));
 
 
 			//new Narnoo_Distributor_Imported_Media_Meta_Box();
