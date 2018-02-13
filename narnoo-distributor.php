@@ -55,6 +55,7 @@ require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operato
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/inti-cmb2.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/cmb2-tabs/inti.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'narnoo-listing-layout-helper.php' );
+require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'narnoo-product-metabox-layout.php' );
 // NARNOO PHP SDK 2.0 //
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/http/WebClient.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/authen.php' );
@@ -152,6 +153,50 @@ class Narnoo_Distributor {
 				)
 			);
 		}
+
+		$options = get_option('narnoo_distributor_settings');
+		if ( !empty( $options['operator_import'] )  ) {
+			$this->create_product_post_type();
+		}
+
+
+		flush_rewrite_rules();
+	}
+
+
+	function create_product_post_type(){
+		register_post_type(
+                'narnoo_product',
+                array(
+                    'label' => 'Products',
+                    'labels' => array(
+                        'singular_name'      => _x( 'Product', 'admin menu', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                        'menu_name'          => _x( 'Products', 'admin menu', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                        //'name_admin_bar'     => _x( 'Product', 'add new on admin bar', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                        //'add_new'            => _x( 'Add New', 'Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                        //'add_new_item'       => __( 'Add New Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                        //'new_item'           => __( 'New Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                        'edit_item'          => __( 'Edit Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                        'view_item'          => __( 'View Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                        'all_items'          => __( 'All Products', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                        'search_items'       => __( 'Search Products', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                        
+                    ),
+                    'hierarchical'          => true,
+                    'rewrite'               => array( 'slug' => 'product' ),
+                    'description'           => "Custom post type for imported operator products from Narnoo",
+                    'public'                => true,
+                    'exclude_from_search'   => false,
+                    'has_archive'           => true,
+                    'publicly_queryable'    => true,
+                    'show_ui'               => true,
+                    'show_in_menu'          => TRUE,
+                    'menu_position'         => 13,
+                    'menu_icon'				=> 'dashicons-tickets-alt',
+                    'show_in_admin_bar'     => true,
+                    'supports'              => array( 'title', 'excerpt', 'thumbnail', 'editor', 'author', 'revisions', 'page-attributes' ),
+                )
+            ); 
 
 		flush_rewrite_rules();
 	}

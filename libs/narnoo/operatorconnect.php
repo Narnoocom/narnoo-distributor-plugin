@@ -510,16 +510,12 @@ class Operatorconnect extends WebClient {
         }
     }
 
-    /*
-    *
-    *   dateCreated: 09.02.2018
-    *   @comment: Get an operator's products
-    */
+
     public function getProducts($op_id) {
 
         $method = 'products';
 
-        $this->setUrl($this->operator_url . $method . '/' . $op_id);
+        $this->setUrl($this->url . $method . '/' . $op_id);
         $this->setGet();
         try {
             return json_decode( $this->getResponse($this->authen) );
@@ -528,16 +524,12 @@ class Operatorconnect extends WebClient {
         }
     }
 
-    /*
-    *
-    *   dateCreated: 09.02.2018
-    *   @comment: Get an operator's product details
-    */
+
     public function getProductDetails( $op_id, $uid ) {
 
         $method = 'product';
 
-        $this->setUrl($this->operator_url . $method .'/' . $op_id . '/' . $uid);
+        $this->setUrl($this->url . $method .'/' . $op_id . '/' . $uid);
         $this->setGet();
         try {
             return json_decode( $this->getResponse($this->authen) );

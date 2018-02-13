@@ -881,7 +881,8 @@ return ob_get_clean();
      * */
     static function import_operator($operator_id) {
         global $user_ID;
-
+        
+        
         // init the API request objects
         $request            = self::init_api();
         $requestOperator    = self::init_api('builder');
@@ -996,6 +997,14 @@ return ob_get_clean();
         /*
         Import the products? Or do we just use the operator information?
         */
+        if ( !empty( $options['operator_import'] )  ) {
+
+           $opResponse = self::import_operator_products( $operator->narnoo_id );
+           if(!empty($opResponse)){
+                update_post_meta($post_id, 'products',            $opResponse);
+           }
+        }
+
 
         // return response object
         $response = new stdClass();
@@ -1007,6 +1016,231 @@ return ob_get_clean();
          );
         $response->category = $category;
         return $response;
+    }
+
+    /**
+    *
+    *   @dateCreated: 13.02.2018
+    *   @title: Import an operators products
+    *
+    */
+    static function import_operator_products( $op_id ){
+        // init the API request objects
+        $request            = self::init_api();
+        $requestOperator    = self::init_api('operator');
+        
+        if (is_null($request) || is_null($requestOperator)) {
+            throw new Exception(__('Incorrect API keys specified.', NARNOO_DISTRIBUTOR_I18N_DOMAIN));
+        }
+
+        // get operator details
+        $products = $requestOperator->getProducts( $op_id );
+        if(empty($products) || empty($products->success)){
+           return false;
+        }
+
+        /**
+        *
+        *       --- Check that this isn't the first time the custom post type has been created
+        *
+        */
+        $postCheck = self::product_post_type_init( );
+        if( empty($postCheck) ){
+            throw new Exception(__('Error creating custom post type page.', NARNOO_DISTRIBUTOR_I18N_DOMAIN));
+        }
+        
+        /************************************************************************************
+        *
+        *          ----- Loop through the products and return the information ----- 
+        *
+        *************************************************************************************/
+        foreach ($products->product as $item) {
+
+
+            $productDetails = $requestOperator->getProductDetails( $op_id, $item->product_id );
+            
+
+            if(!empty($productDetails) || !empty($productDetails->success)){
+                        $post_id = self::get_post_id_for_imported_product_id( $productDetails->product_id ); 
+
+
+                        if (!empty( $post_id )) {
+
+                                // update existing post, ensuring parent is correctly set
+                                $update_post_fields = array(
+                                    'ID'            => $post_id,
+                                    'post_title'    => $productDetails->product_title,
+                                    'post_type'     => 'narnoo_product',
+                                    'post_status'   => 'publish',
+                                    'post_author'   => $user_ID,
+                                    'post_modified' => date('Y-m-d H:i:s')
+                                );
+                                wp_update_post($update_post_fields);
+
+                                
+                                update_post_meta( $post_id, 'product_description', $productDetails->description->english->text);
+                                update_post_meta( $post_id, 'product_excerpt',  strip_tags( $productDetails->summary->english->text ));
+
+                               // set a feature image for this post but first check to see if a feature is present
+
+                                $feature = get_the_post_thumbnail($post_id);
+                                if(empty($feature)){
+
+                                    if( !empty( $productDetails->feature_image->xxlarge_image_path ) ){
+                                    $url = "https:" . $productDetails->feature_image->xxlarge_image_path;
+                                    $desc = $productDetails->product_title . " feature image reloaded";
+                                    $feature_image = media_sideload_image($url, $post_id, $desc);
+                                    if(!empty($feature_image)){
+                                        global $wpdb;
+                                        $attachment     = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $feature_image )); 
+                                        set_post_thumbnail( $post_id, $attachment[0] );
+                                    }
+                                }
+
+                                }
+
+                                //$response['msg'] = "Successfully re-imported product details";
+
+                        }else{
+                    
+                        //create new post with operator details
+                        $new_post_fields = array(
+                            'post_title'        => $productDetails->product_title,
+                            'post_status'       => 'publish',
+                            'post_date'         => date('Y-m-d H:i:s'),
+                            'post_author'       => $user_ID,
+                            'post_type'         => 'narnoo_product',
+                            'comment_status'    => 'closed',
+                            'ping_status'       => 'closed'
+                        );
+
+                        if(!empty($productDetails->summary->english->text)){
+                            $new_post_fields['post_excerpt'] = strip_tags( $productDetails->summary->english->text );
+                        }
+
+                        if(!empty($productDetails->description->english->text)){
+                            $new_post_fields['post_content'] = strip_tags( $productDetails->description->english->text );
+                        }
+                       
+                        $post_id = wp_insert_post($new_post_fields);
+                        
+                        // set a feature image for this post
+                        if( !empty( $productDetails->feature_image->xxlarge_image_path ) ){
+                            $url = "https:" . $productDetails->feature_image->xxlarge_image_path;
+                            $desc = $productDetails->product_title . " feature image";
+                            $feature_image = media_sideload_image($url, $post_id, $desc);
+                            if(!empty($feature_image)){
+                                global $wpdb;
+                                $attachment     = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $feature_image )); 
+                                set_post_thumbnail( $post_id, $attachment[0] );
+                            }
+                        }
+                        
+                        //$response['msg'] = "Successfully imported product details";
+
+                      }
+                    
+
+                    // insert/update custom fields with operator details into post
+                    update_post_meta($post_id, 'narnoo_operator_id',    $op_id); 
+                    update_post_meta($post_id, 'narnoo_product_id',     $productDetails->product_id);
+                    update_post_meta($post_id, 'product_min_price',     $productDetails->min_price);
+                    update_post_meta($post_id, 'product_avg_price',     $productDetails->avg_price);
+                    update_post_meta($post_id, 'product_max_price',     $productDetails->max_price);
+                    update_post_meta($post_id, 'product_booking_link',  $productDetails->direct_booking);
+
+
+                    //$isAttraction = get_option('narnoo_operator_category');
+                    //if(!empty($isAttraction) && $isAttraction == 'attraction'){
+
+                        update_post_meta($post_id, 'narnoo_product_duration',   $productDetails->details->operating_hours);
+                        update_post_meta($post_id, 'narnoo_product_start_time', $productDetails->details->start_time);
+                        update_post_meta($post_id, 'narnoo_product_end_time',   $productDetails->details->end_time);
+                        update_post_meta($post_id, 'narnoo_product_transport',  $productDetails->details->pickup_departure);
+                        update_post_meta($post_id, 'narnoo_product_purchase',   $productDetails->details->purchase_options);
+                        update_post_meta($post_id, 'narnoo_product_health',     $productDetails->details->health_requirements);
+                        update_post_meta($post_id, 'narnoo_product_packing',    $productDetails->details->what_to_bring);
+                        update_post_meta($post_id, 'narnoo_product_children',   $productDetails->details->children_information);
+                        update_post_meta($post_id, 'narnoo_product_additional', $productDetails->details->additional_information);
+                        
+                    //}
+                    /**
+                    *
+                    *   Import the gallery images as JSON encoded object
+                    *
+                    */
+                    if(!empty($productDetails->gallery)){
+                        update_post_meta($post_id, 'narnoo_product_gallery', json_encode($productDetails->gallery) );
+                    }else{
+                        delete_post_meta($post_id, 'narnoo_product_gallery');
+                    }
+                    /**
+                    *
+                    *   Import the video player object
+                    *
+                    */
+                    if(!empty($productDetails->feature_video)){
+                        update_post_meta($post_id, 'narnoo_product_video', json_encode($productDetails->feature_video) );
+                    }else{
+                        delete_post_meta($post_id, 'narnoo_product_video');
+                    }
+                    /**
+                    *
+                    *   Import the brochure object
+                    *
+                    */
+                    if(!empty($productDetails->feature_print)){   
+
+                        update_post_meta($post_id, 'narnoo_product_print', json_encode($productDetails->feature_print) );
+                    }else{
+
+                        delete_post_meta($post_id, 'narnoo_product_print');
+                    }
+                        
+            } //if success
+        
+        } //loop
+        /************************************************************************************
+        *
+        *                   ----- End of products loop ----- 
+        *
+        *************************************************************************************/
+        
+
+        return $products->total_products;
+
+    }
+
+    /**
+     * Checks to see if the custom post type has been initiated. If not then initiate it.
+     * Returns boolean.
+     *
+     */
+    static function product_post_type_init( ) {
+
+        if( post_type_exists( 'narnoo_product' ) ) {
+              return TRUE;
+        }
+
+        return false;  
+            
+    }
+
+    /**
+     * Retrieves Wordpress post ID for imported product ID, if it exists.
+     * Returns false if no such product exists in Wordpress DB.
+     * */
+    static function get_post_id_for_imported_product_id($product_id) {
+            
+            $imported_posts = get_posts(array('post_type' => 'narnoo_product','numberposts' => -1));
+            foreach ($imported_posts as $post) {
+                $id = get_post_meta($post->ID, 'narnoo_product_id', true);
+                if ($id === $product_id) {
+                    return $post->ID;
+                }
+            }
+
+        return false;
     }
 
     /**

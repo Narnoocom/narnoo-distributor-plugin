@@ -158,6 +158,19 @@ function narnoo_listing_metaboxes() {
         )
     );
 
+    //Manage each of the tabs as complete collection of fields
+    $tabs_setting['tabs'][] = array(
+        'id'     => 'tab5',
+        'title'  => __( 'Products', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+        'fields' => array(
+            array(
+                'name' => __( 'Number', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+                'id'   => 'products',
+                'type' => 'text_medium'
+            )
+        )
+    );
+
     // Set tabs
     $cmb->add_field( array(
         'id'   => '__tabs',
