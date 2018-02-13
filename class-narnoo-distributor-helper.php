@@ -881,7 +881,7 @@ return ob_get_clean();
      * */
     static function import_operator($operator_id) {
         global $user_ID;
-        
+        $options = get_option('narnoo_distributor_settings');
         
         // init the API request objects
         $request            = self::init_api();
@@ -937,6 +937,20 @@ return ob_get_clean();
             update_post_meta($post_id, 'data_source',            'narnoo');
             update_post_meta($post_id, 'operator_excerpt',        strip_tags( $operator->description->english->summary_text->text ) );
             update_post_meta($post_id, 'operator_description',    $operator->description->english->full_text->text );
+
+            $feature = get_the_post_thumbnail($post_id);
+            if(empty($feature)){
+                    if( !empty( $operator->feature_image->xxlarge_image_path ) ){
+                        $url            = "https:" . $operator->feature_image->xxlarge_image_path;
+                        $desc           = $operator->business_name . " feature image";
+                        $feature_image  = media_sideload_image($url, $post_id, $desc, 'src');
+                        if(!empty($feature_image)){
+                            global $wpdb;
+                            $attachment     = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $feature_image )); 
+                            set_post_thumbnail( $post_id, $attachment[0] );
+                        }
+                    }
+            }
 
             $success_message = __('Success! Re-imported operator details to existing %1s post (%2s)', NARNOO_DISTRIBUTOR_I18N_DOMAIN);
         } else {
@@ -999,10 +1013,11 @@ return ob_get_clean();
         */
         if ( !empty( $options['operator_import'] )  ) {
 
-           $opResponse = self::import_operator_products( $operator->narnoo_id );
+           $opResponse = self::import_operator_products( $operator->narnoo_id, $operator->category, $operator->sub_category, $operator->business_name, $post_id );
            if(!empty($opResponse)){
                 update_post_meta($post_id, 'products',            $opResponse);
            }
+
         }
 
 
@@ -1024,7 +1039,8 @@ return ob_get_clean();
     *   @title: Import an operators products
     *
     */
-    static function import_operator_products( $op_id ){
+    static function import_operator_products( $op_id, $category, $subCategory, $businessName, $postId ){
+
         // init the API request objects
         $request            = self::init_api();
         $requestOperator    = self::init_api('operator');
@@ -1039,11 +1055,11 @@ return ob_get_clean();
            return false;
         }
 
-        /**
+        /*
         *
         *       --- Check that this isn't the first time the custom post type has been created
         *
-        */
+        *
         $postCheck = self::product_post_type_init( );
         if( empty($postCheck) ){
             throw new Exception(__('Error creating custom post type page.', NARNOO_DISTRIBUTOR_I18N_DOMAIN));
@@ -1061,11 +1077,10 @@ return ob_get_clean();
             
 
             if(!empty($productDetails) || !empty($productDetails->success)){
-                        $post_id = self::get_post_id_for_imported_product_id( $productDetails->product_id ); 
+                        $postData = self::get_post_id_for_imported_product_id( $productDetails->product_id );
 
-
-                        if (!empty( $post_id )) {
-
+                        if ( !empty( $postData['id'] ) && $postData['status'] !== 'trash') {
+                                $post_id = $postData['id'];
                                 // update existing post, ensuring parent is correctly set
                                 $update_post_fields = array(
                                     'ID'            => $post_id,
@@ -1088,7 +1103,7 @@ return ob_get_clean();
 
                                     if( !empty( $productDetails->feature_image->xxlarge_image_path ) ){
                                     $url = "https:" . $productDetails->feature_image->xxlarge_image_path;
-                                    $desc = $productDetails->product_title . " feature image reloaded";
+                                    $desc = $productDetails->product_title . " product image";
                                     $feature_image = media_sideload_image($url, $post_id, $desc);
                                     if(!empty($feature_image)){
                                         global $wpdb;
@@ -1127,7 +1142,7 @@ return ob_get_clean();
                         // set a feature image for this post
                         if( !empty( $productDetails->feature_image->xxlarge_image_path ) ){
                             $url = "https:" . $productDetails->feature_image->xxlarge_image_path;
-                            $desc = $productDetails->product_title . " feature image";
+                            $desc = $productDetails->product_title . " product image";
                             $feature_image = media_sideload_image($url, $post_id, $desc);
                             if(!empty($feature_image)){
                                 global $wpdb;
@@ -1142,16 +1157,20 @@ return ob_get_clean();
                     
 
                     // insert/update custom fields with operator details into post
-                    update_post_meta($post_id, 'narnoo_operator_id',    $op_id); 
-                    update_post_meta($post_id, 'narnoo_product_id',     $productDetails->product_id);
-                    update_post_meta($post_id, 'product_min_price',     $productDetails->min_price);
-                    update_post_meta($post_id, 'product_avg_price',     $productDetails->avg_price);
-                    update_post_meta($post_id, 'product_max_price',     $productDetails->max_price);
-                    update_post_meta($post_id, 'product_booking_link',  $productDetails->direct_booking);
+                    update_post_meta($post_id, 'narnoo_operator_id',            $op_id); 
+                    update_post_meta($post_id, 'narnoo_operator_name',          $businessName);
+                    update_post_meta($post_id, 'parent_post_id',                $postId);  
+                    update_post_meta($post_id, 'narnoo_product_id',             $productDetails->product_id);
+                    update_post_meta($post_id, 'product_min_price',             $productDetails->min_price);
+                    update_post_meta($post_id, 'product_avg_price',             $productDetails->avg_price);
+                    update_post_meta($post_id, 'product_max_price',             $productDetails->max_price);
+                    update_post_meta($post_id, 'product_booking_link',          $productDetails->direct_booking);
+                    
+                    update_post_meta($post_id, 'narnoo_listing_category',       $category);
+                    update_post_meta($post_id, 'narnoo_listing_subcategory',    $subCategory);
 
+                    if( lcfirst( $category ) == 'attraction' ){
 
-                    //$isAttraction = get_option('narnoo_operator_category');
-                    //if(!empty($isAttraction) && $isAttraction == 'attraction'){
 
                         update_post_meta($post_id, 'narnoo_product_duration',   $productDetails->details->operating_hours);
                         update_post_meta($post_id, 'narnoo_product_start_time', $productDetails->details->start_time);
@@ -1163,7 +1182,7 @@ return ob_get_clean();
                         update_post_meta($post_id, 'narnoo_product_children',   $productDetails->details->children_information);
                         update_post_meta($post_id, 'narnoo_product_additional', $productDetails->details->additional_information);
                         
-                    //}
+                    }
                     /**
                     *
                     *   Import the gallery images as JSON encoded object
@@ -1235,9 +1254,13 @@ return ob_get_clean();
             $imported_posts = get_posts(array('post_type' => 'narnoo_product','numberposts' => -1));
             foreach ($imported_posts as $post) {
                 $id = get_post_meta($post->ID, 'narnoo_product_id', true);
+                
                 if ($id === $product_id) {
-                    return $post->ID;
+                    $result['id']       = $post->ID;
+                    $result['status'] = get_post_status( $post->ID );                    
+                    return $result;
                 }
+
             }
 
         return false;

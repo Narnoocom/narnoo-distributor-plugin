@@ -179,16 +179,6 @@ function narnoo_product_attraction_metaboxes() {
 		'title'  => __( 'Details', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 		'fields' => array(
 			array(
-				'name' => __( 'Narnoo Operator ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-				'id'   => 'narnoo_operator_id',
-				'type' => 'text_medium',
-				'save_field' => false, // Disables the saving of this field.
-				'attributes' => array(
-					'disabled' => 'disabled',
-					'readonly' => 'readonly',
-				),
-			),
-			array(
 				'name' => __( 'Narnoo ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 				'id'   => 'narnoo_product_id',
 				'type' => 'text_medium',
@@ -217,6 +207,46 @@ function narnoo_product_attraction_metaboxes() {
 				'name' => __( 'End Time', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 				'id'   => 'narnoo_product_end_time',
 				'type' => 'text_time'
+			),
+			array(
+				'name' => __( 'Operator Name', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				'id'   => 'narnoo_operator_name',
+				'type' => 'text_medium',
+				'save_field' => false, // Disables the saving of this field.
+				'attributes' => array(
+					'disabled' => 'disabled',
+					'readonly' => 'readonly',
+				),
+			),
+			array(
+				'name' => __( 'Narnoo Operator ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				'id'   => 'narnoo_operator_id',
+				'type' => 'text_medium',
+				'save_field' => false, // Disables the saving of this field.
+				'attributes' => array(
+					'disabled' => 'disabled',
+					'readonly' => 'readonly',
+				),
+			),
+			array(
+				'name' => __( 'Narnoo Category', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				'id'   => 'narnoo_listing_category',
+				'type' => 'text_medium',
+				'save_field' => false, // Disables the saving of this field.
+				'attributes' => array(
+					'disabled' => 'disabled',
+					'readonly' => 'readonly',
+				),
+			),
+			array(
+				'name' => __( 'Narnoo Sub Category', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				'id'   => 'narnoo_listing_subcategory',
+				'type' => 'text_medium',
+				'save_field' => false, // Disables the saving of this field.
+				'attributes' => array(
+					'disabled' => 'disabled',
+					'readonly' => 'readonly',
+				),
 			)
 		)
 	);
