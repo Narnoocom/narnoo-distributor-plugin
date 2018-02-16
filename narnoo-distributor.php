@@ -1034,16 +1034,16 @@ class Narnoo_Distributor {
 					try {
 
 						$list = $request->getAlbums( $operatorId,$current_page );
-						if ( ! is_array( $list->operator_albums ) ) {
-							throw new Exception( sprintf( __( "Error retrieving albums. Unexpected format in response page #%d.", NARNOO_OPERATOR_I18N_DOMAIN ), $current_page ) );
+						if ( !empty($list) || !empty( $list->operator_albums ) ) {
+								if(!empty( $list->success ) ){
+										//$cache->set('albums_'.$current_page, $list, 43200);
+								}
 						}
 
-						if(!empty( $list->success ) ){
-								//$cache->set('albums_'.$current_page, $list, 43200);
-						}
+						
 
 					} catch ( Exception $ex ) {
-						//Narnoo_Distributor_Helper::show_api_error( $ex ); don't need to show anything
+						//do nothing
 					}
 
 			}
@@ -1057,9 +1057,15 @@ class Narnoo_Distributor {
         <label for="my_meta_box_select">Narnoo Album:</label>
         <select name="noo_op_album_select" id="noo_op_album_select">
         	<option value="">None</option>
-            <?php foreach ($list->operator_albums as $album) { ?>
-            		<option value="<?php echo $album->album_id; ?>" <?php selected( $selected, $album->album_id ); ?>><?php echo ucwords( $album->album_name ); ?></option>
-            <?php } ?>
+            
+            <?php if(!empty($list->operator_albums)){ ?>
+	        
+	            <?php foreach ($list->operator_albums as $album) { ?>
+	            		<option value="<?php echo $album->album_id; ?>" <?php selected( $selected, $album->album_id ); ?>><?php echo ucwords( $album->album_name ); ?></option>
+	            <?php } ?>
+	        
+	        <?php } ?>
+
         </select>
         <p><small><em>Select an album and this will be displayed the page.</em></small></p>
     </p>

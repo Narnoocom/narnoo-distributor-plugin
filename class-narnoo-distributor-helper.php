@@ -1157,6 +1157,15 @@ return ob_get_clean();
                     
 
                     // insert/update custom fields with operator details into post
+                    
+                    if(!empty($productDetails->primary)){
+                        update_post_meta($post_id, 'primary_product',               "Primary Product");
+                    }else{
+                        update_post_meta($post_id, 'primary_product',               "Product");
+                    }
+                     
+                    
+
                     update_post_meta($post_id, 'narnoo_operator_id',            $op_id); 
                     update_post_meta($post_id, 'narnoo_operator_name',          $businessName);
                     update_post_meta($post_id, 'parent_post_id',                $postId);  

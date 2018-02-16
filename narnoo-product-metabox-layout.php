@@ -179,6 +179,16 @@ function narnoo_product_attraction_metaboxes() {
 		'title'  => __( 'Details', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 		'fields' => array(
 			array(
+				'name' => __( 'Product Type', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				'id'   => 'primary_product',
+				'type' => 'text_medium',
+				'save_field' => false, // Disables the saving of this field.
+				'attributes' => array(
+					'disabled' => 'disabled',
+					'readonly' => 'readonly',
+				),
+			),
+			array(
 				'name' => __( 'Operator Name', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 				'id'   => 'narnoo_operator_name',
 				'type' => 'text_medium',
