@@ -1168,7 +1168,8 @@ return ob_get_clean();
 
                     update_post_meta($post_id, 'narnoo_operator_id',            $op_id); 
                     update_post_meta($post_id, 'narnoo_operator_name',          $businessName);
-                    update_post_meta($post_id, 'parent_post_id',                $postId);  
+                    update_post_meta($post_id, 'parent_post_id',                $postId);
+                    update_post_meta($post_id, 'narnoo_booking_id',             $productDetails->booking_id);  
                     update_post_meta($post_id, 'narnoo_product_id',             $productDetails->product_id);
                     update_post_meta($post_id, 'product_min_price',             $productDetails->min_price);
                     update_post_meta($post_id, 'product_avg_price',             $productDetails->avg_price);
