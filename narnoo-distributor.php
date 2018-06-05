@@ -27,7 +27,7 @@ License: GPL2 or later
 
 // plugin definitions
 define( 'NARNOO_DISTRIBUTOR_PLUGIN_NAME', 'Narnoo Distributor' );
-define( 'NARNOO_DISTRIBUTOR_CURRENT_VERSION', '2.0.2' );
+define( 'NARNOO_DISTRIBUTOR_CURRENT_VERSION', '2.0.5' );
 define( 'NARNOO_DISTRIBUTOR_I18N_DOMAIN', 'narnoo-distributor' );
 
 define( 'NARNOO_DISTRIBUTOR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
