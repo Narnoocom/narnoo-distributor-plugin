@@ -2,7 +2,7 @@
 
 class Operatorconnect extends WebClient {
 
-    public $url = 'https://connect.narnoo.com/connect_dev/';
+    public $url = 'https://test-connect.narnoo.com/connect/';
     public $authen;
 
     public function __construct($authenticate) {

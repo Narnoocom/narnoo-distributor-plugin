@@ -10,6 +10,7 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 			case 'caption':
 			case 'entry_date':
 			case 'video_id':
+			case 'embed_id':
 				return $item[ $column_name ];
 			default:
 				return print_r( $item, true );
@@ -71,7 +72,8 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 			'thumbnail_image'	=> __( 'Thumbnail', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 			'caption'			=> __( 'Caption', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 			'entry_date'		=> __( 'Entry Date', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			'video_id'			=> __( 'Video ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
+			'video_id'			=> __( 'Video ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+			'embed_id'			=> __( 'Embed ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
 		);
 	}
 
@@ -271,10 +273,11 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 		if ( ! is_null( $list_m ) ) {
 			$data['total_pages'] = max( 1, intval( $list_m->total_pages ) );
 			foreach ( $list_m->operator_videos as $video ) {
-				$item['thumbnail_image'] = $video->video_thumb_image_path;
-				$item['caption'] = $video->video_caption;
-				$item['entry_date'] = $video->entry_date;
-				$item['video_id'] = $video->video_id;
+				$item['thumbnail_image'] 	= $video->video_thumb_image_path;
+				$item['caption'] 			= $video->video_caption;
+				$item['entry_date'] 		= $video->entry_date;
+				$item['video_id'] 			= $video->video_id;
+				$item['embed_id'] 			= $video->embed_id;
 				$data['items'][] = $item;
 			}
 		}
