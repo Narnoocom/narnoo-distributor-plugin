@@ -304,8 +304,7 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 
 				}
 
-				
-		
+					
 
 			} catch ( Exception $ex ) {
 				Narnoo_Distributor_Helper::show_api_error( $ex );
@@ -314,7 +313,7 @@ class Narnoo_Distributor_Search_Add_Operators_Table extends WP_List_Table {
 
 		}
 		
-		if ( ! is_null( $list ) ) {
+		if ( !empty( $list->success ) ) {
 			// get list of imported operator IDs
 			$imported_ids = Narnoo_Distributor_Helper::get_imported_operator_ids();
 
