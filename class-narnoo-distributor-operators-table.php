@@ -9,14 +9,10 @@ class Narnoo_Distributor_Operators_Table extends WP_List_Table {
 	function column_default( $item, $column_name ) {
 		switch( $column_name ) {
 			case 'operator_id':
-			case 'category':
-			case 'sub_category':
-			case 'description':
 			case 'operator_businessname':
-			case 'country_name':
-			case 'state':
-			case 'postcode':
-			case 'keywords':
+			case 'phone':
+			case 'email':
+			case 'type':
 				return $item[ $column_name ];
 			default:
 				return print_r( $item, true );
@@ -89,14 +85,10 @@ class Narnoo_Distributor_Operators_Table extends WP_List_Table {
 		return array(
 			'cb'                    => '<input type="checkbox" />',
 			'operator_businessname' => __( 'Business', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			'description'           => __( 'Description', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 			'operator_id'           => __( 'ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			'category'              => __( 'Category', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			'sub_category'          => __( 'Subcategory', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			'country_name'          => __( 'Country', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			'state'                 => __( 'State', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			'postcode'              => __( 'Postcode', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			'keywords'              => __( 'Keywords', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
+			'phone'                 => __( 'Phone', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+			'email'              	=> __( 'Email', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+			'type'              	=> __( 'Type', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
 		);
 	}
 
@@ -269,7 +261,7 @@ class Narnoo_Distributor_Operators_Table extends WP_List_Table {
 		$list = null;
 		$current_page = $this->get_pagenum();
 
-		$request = Narnoo_Distributor_Helper::init_api('operator');
+		$request = Narnoo_Distributor_Helper::init_api('new');
 		//$cache	 		= Narnoo_Distributor_Helper::init_noo_cache();
 
 		if ( ! is_null( $request ) ) {
@@ -277,9 +269,9 @@ class Narnoo_Distributor_Operators_Table extends WP_List_Table {
 
                	//$list = $cache->get('operators_'.$current_page);
                	//if(empty($list)){
-					$list 		= $request->getOperators($current_page);
-                	$operators 	= $list->operator;
-					//if( !empty( $operator->success ) ){
+				    $list 		= $request->following($current_page);
+                	$operators 	= $list->data;
+                	//if( !empty( $list->success ) ){
 						//$cache->set('operators_'.$current_page, $list, 43200);
 					//}
 				//}
@@ -297,20 +289,16 @@ class Narnoo_Distributor_Operators_Table extends WP_List_Table {
 			$imported_ids = Narnoo_Distributor_Helper::get_imported_operator_ids();
 			
 
-			$data['total_pages'] = max( 1, intval( $list->total_pages ) );
+			$data['total_pages'] = max( 1, intval( 1 ) );
         
 			foreach ( $operators as $operator ) {
+				//print_r($operator);
 
-
-                $item['operator_id'          ] = $operator->id;
-                $item['category'             ] = $operator->category;
-                $item['sub_category'         ] = $operator->sub_category;
-                $item['description'          ] = $operator->description_excerpt;
-                $item['operator_businessname'] = $operator->business_name;
-                $item['country_name'         ] = $operator->country;
-                $item['state'                ] = $operator->state;
-                $item['postcode'             ] = $operator->postcode;
-                $item['keywords'             ] = $operator->keywords;
+                $item['operator_id'            ] = $operator->details->id;
+                $item['operator_businessname'  ] = $operator->details->business;
+                $item['phone'                  ] = $operator->details->phone;
+                $item['email'             	   ] = $operator->details->email;
+                $item['type'             	   ] = $operator->details->type;
 
 
 				$item['imported'] = in_array(  $item['operator_id' ], $imported_ids );

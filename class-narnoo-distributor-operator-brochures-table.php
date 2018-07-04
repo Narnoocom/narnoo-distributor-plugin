@@ -130,7 +130,7 @@ class Narnoo_Distributor_Operator_Brochures_Table extends Narnoo_Distributor_Ope
 
 		$list = null;
 		$current_page = $this->get_pagenum();
-		$request = Narnoo_Distributor_Helper::init_api( 'operator' );
+		$request = Narnoo_Distributor_Helper::init_api( 'new' );
 		//$cache	 		= Narnoo_Distributor_Helper::init_noo_cache();
 		if ( ! is_null( $request ) ) {
 			try {
@@ -139,14 +139,15 @@ class Narnoo_Distributor_Operator_Brochures_Table extends Narnoo_Distributor_Ope
 				//$list = $cache->get('op_print_'.$this->operator_id.'_'.$current_page);
 					
 					//if(empty($list)){
-				
-						$list = $request->getBrochures( $this->operator_id, $current_page );
+						$_params['page'] = $current_page;
+						$list = $request->getBusinessPrints( 'operator', $this->operator_id, $_params );
+
 						//if( !empty( $operator->success ) ){
 						//$cache->set('op_print_'.$this->operator_id.'_'.$current_page, $list, 43200);
 						//}
 					//}
 
-				if ( ! is_array( $list->operator_brochures ) ) {
+				if ( empty( $list->success ) ) {
 					throw new Exception( sprintf( __( "Error retrieving prints. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
 				}
 			} catch ( Exception $ex ) {
@@ -155,13 +156,13 @@ class Narnoo_Distributor_Operator_Brochures_Table extends Narnoo_Distributor_Ope
 		}
 		
 		if ( ! is_null( $list ) ) {
-			$data['total_pages'] = max( 1, intval( $list->total_pages ) );
-			foreach ( $list->operator_brochures as $brochure ) {
-				$item['thumbnail_image'] = $brochure->thumb_image_path;
-				$item['caption'] = $brochure->brochure_caption;
-				$item['entry_date'] = $brochure->entry_date;
-				$item['brochure_id'] = $brochure->brochure_id;
-				$data['items'][] = $item;
+			$data['total_pages'] = max( 1, intval( 1 ) );
+			foreach ( $list->data->prints as $brochure ) {
+				$item['thumbnail_image'] = $brochure->thumbImage;
+				$item['caption'] 		 = $brochure->caption;
+				$item['entry_date'] 	 = $brochure->uploadedAt;
+				$item['brochure_id']     = $brochure->id;
+				$data['items'][]         = $item;
 			}
 		}
 

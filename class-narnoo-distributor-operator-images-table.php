@@ -130,7 +130,7 @@ class Narnoo_Distributor_Operator_Images_Table extends Narnoo_Distributor_Operat
 
 		$list = null;
 		$current_page = $this->get_pagenum();
-		$request = Narnoo_Distributor_Helper::init_api( 'operator' );
+		$request = Narnoo_Distributor_Helper::init_api( 'new' );
 		//$cache	 		= Narnoo_Distributor_Helper::init_noo_cache();
 
 		if ( ! is_null( $request ) ) {
@@ -139,16 +139,16 @@ class Narnoo_Distributor_Operator_Images_Table extends Narnoo_Distributor_Operat
 				//$list = $cache->get('op_img_'.$this->operator_id.'_'.$current_page);
 					
 					//if(empty($list)){
-				
-						$list = $request->getImages( $this->operator_id, $current_page );
+						$_params['page'] = $current_page;
+						$list = $request->getBusinessImages( 'operator', $this->operator_id, $_params );
 						//if( !empty( $operator->success ) ){
 						//$cache->set('op_img_'.$this->operator_id.'_'.$current_page, $list, 43200);
 						//}
 					//}
-				
+						//$operators 	= $list->data;
+						print_r($list);
 
-
-				if ( ! is_array( $list->operator_images ) ) {
+				if ( empty( $list->success ) ) {
 					throw new Exception( sprintf( __( "Error retrieving images. The operator has no images #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
 				}
 			} catch ( Exception $ex ) {
@@ -157,7 +157,8 @@ class Narnoo_Distributor_Operator_Images_Table extends Narnoo_Distributor_Operat
 		}
 		
 		if ( ! is_null( $list ) ) {
-			$data['total_pages'] = max( 1, intval( $list->total_pages ) );
+
+			$data['total_pages'] = max( 1, intval( 1 ) );
 
 			/**
 			*
@@ -165,13 +166,13 @@ class Narnoo_Distributor_Operator_Images_Table extends Narnoo_Distributor_Operat
 			*	@change_log: Added a check to see if images are empty
 			*
 			*/
-			if(!empty($list->operator_images)){
+			if(!empty($list->data->images)){
 
-				foreach ( $list->operator_images as $image ) {
-								$item['thumbnail_image'] 	= $image->crop_image_path;
-								$item['caption'] 			= $image->image_caption;
-								$item['entry_date'] 		= $image->entry_date;
-								$item['image_id'] 			= $image->image_id;
+				foreach ( $list->data->images as $image ) {
+								$item['thumbnail_image'] 	= $image->cropImage;
+								$item['caption'] 			= $image->caption;
+								$item['entry_date'] 		= $image->uploadedAt;
+								$item['image_id'] 			= $image->id;
 								$data['items'][] 			= $item;
 							}
 			}else{

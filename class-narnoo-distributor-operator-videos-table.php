@@ -248,7 +248,7 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 		
 		$list_m = null;
 		$current_page = $this->get_pagenum();
-		$request 			= Narnoo_Distributor_Helper::init_api( 'operator' );
+		$request 			= Narnoo_Distributor_Helper::init_api( 'new' );
 		//$cache	 		= Narnoo_Distributor_Helper::init_noo_cache();
 		if ( ! is_null( $request ) ) {
 			try {
@@ -256,13 +256,15 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 				//$list_m = $cache->get('op_video_'.$this->operator_id.'_'.$current_page);
 				
 				//if(empty($list_m)){
-					$list_m = $request->getVideos( $this->operator_id, $current_page );
+					$_params['page'] = $current_page;
+					$list_m = $request->getBusinessVideos( 'operator',$this->operator_id, $_params );
+					//print_r($list_m);
 					//if( !empty( $list_m->success ) ){
 					//$cache->set('op_video_'.$this->operator_id.'_'.$current_page, $list_m, 43200);
 					//}
 				//}
 
-				if ( ! is_array( $list_m->operator_videos ) ) {
+				if ( empty( $list_m->success ) ) {
 					throw new Exception( sprintf( __( "Error retrieving videos. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
 				}
 			} catch ( Exception $ex ) {
@@ -271,13 +273,13 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 		}
 		
 		if ( ! is_null( $list_m ) ) {
-			$data['total_pages'] = max( 1, intval( $list_m->total_pages ) );
-			foreach ( $list_m->operator_videos as $video ) {
-				$item['thumbnail_image'] 	= $video->video_thumb_image_path;
-				$item['caption'] 			= $video->video_caption;
-				$item['entry_date'] 		= $video->entry_date;
-				$item['video_id'] 			= $video->video_id;
-				$item['embed_id'] 			= $video->embed_id;
+			$data['total_pages'] = max( 1, intval( 1 ) );
+			foreach ( $list_m->data->videos as $video ) {
+				$item['thumbnail_image'] 	= $video->thumbImage;
+				$item['caption'] 			= $video->caption;
+				$item['entry_date'] 		= $video->uploadedAt;
+				$item['video_id'] 			= $video->id;
+				$item['embed_id'] 			= "coming";
 				$data['items'][] = $item;
 			}
 		}
