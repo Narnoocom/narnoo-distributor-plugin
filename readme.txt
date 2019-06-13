@@ -4,7 +4,11 @@ Donate link:
 Tags: Tourism, Media, Web Service, Travel, Narnoo
 Requires at least: 3.3
 Tested up to: 5.2.0
+<<<<<<< Updated upstream
 Stable tag: 2.4.0
+=======
+Stable tag: 2.4.2
+>>>>>>> Stashed changes
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +38,10 @@ You can retrieve your APP keys from your account on Narnoo.com. Simply log into 
 1. This screenshot show how you can interact with your members through the WordPress admin panel.
 
 == Changelog ==
+<<<<<<< Updated upstream
+=======
+14-06-2019: Bug fixes and importing of two product with same sub category issue
+>>>>>>> Stashed changes
 14-05-2019: Updated libraries and tested with latest WP version
 08-02-2019: Added error checking when creating web hooks
 06-02-2019: Webhook DB update for WPV 5
