@@ -1,0 +1,14 @@
+.narnoo_attr_img_wrapper {
+    height: 145px;position: relative; overflow:hidden;
+}
+
+.narnoo_attr_img_wrapper img{
+    position: absolute;
+    top:-100%; left:0; right: 0; bottom:-100%;
+    margin: auto;
+}
+
+.narnoo_product_listing_link {
+	height: 36px;
+	margin-bottom: 0px;
+}

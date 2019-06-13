@@ -496,7 +496,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
 
 		if(!empty($raw)){
 
-			return $gallery->image;
+			return $gallery->images;
 
 		}else{
             
@@ -535,7 +535,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
 		}
 
 
-        foreach ($gallery->image as $img) {
+        foreach ($gallery->images as $img) {
         
         $html .=	$container;
 
@@ -545,7 +545,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
          	if( !empty($_imageStyle) ){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->xxlarge_image_path.'" />';
+         	$html .= 'src="'.$img->xxlargeImage.'" />';
 
          }elseif ($size == 'xlarge') {
 
@@ -553,7 +553,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->xlarge_image_path.'" />';
+         	$html .= 'src="'.$img->xlargeImage.'" />';
 
          }elseif ($size == '800') {
 
@@ -561,7 +561,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->image_800_path.'" />';
+         	$html .= 'src="'.$img->image800.'" />';
 
          }elseif ($size == '400') {
 
@@ -569,7 +569,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->image_400_path.'" />';
+         	$html .= 'src="'.$img->image400.'" />';
 
          }elseif ($size == '200') {
 
@@ -577,7 +577,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->image_200_path.'" />';
+         	$html .= 'src="'.$img->image200.'" />';
 
          }elseif ($size == 'crop') {
 
@@ -585,7 +585,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->crop_image_path.'" />';
+         	$html .= 'src="'.$img->cropImage.'" />';
 
          }elseif ($size == 'preview') {
 
@@ -593,7 +593,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->preview_image_path.'" />';
+         	$html .= 'src="'.$img->previewImage.'" />';
 
          }elseif ($size == 'xcrop') {
 
@@ -601,7 +601,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->xcrop_image_path.'" />';
+         	$html .= 'src="'.$img->xcropImage.'" />';
 
          }elseif ($size == 'thumb') {
 
@@ -609,7 +609,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->thumb_image_path.'" />';
+         	$html .= 'src="'.$img->thumbImage.'" />';
 
          }else {
 
@@ -617,7 +617,7 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->large_image_path.'" />';
+         	$html .= 'src="'.$img->largeImage.'" />';
 
          }
          
@@ -650,10 +650,9 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
 
 		if(!empty($raw)){
 
-			return $gallery->image;
+			return $gallery->images;
 
 		}else{
-            
 
 		if( !empty($markup) ){
 
@@ -689,7 +688,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
 		}
 
 
-        foreach ($gallery->image as $img) {
+        foreach ($gallery->images as $img) {
         
         $html .=	$container;
 
@@ -699,7 +698,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
          	if( !empty($_imageStyle) ){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->xxlarge_image_path.'" />';
+         	$html .= 'src="'.$img->xxlargeImage.'" />';
 
          }elseif ($size == 'xlarge') {
 
@@ -707,7 +706,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->xlarge_image_path.'" />';
+         	$html .= 'src="'.$img->xlargeImage.'" />';
 
          }elseif ($size == '800') {
 
@@ -715,7 +714,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->image_800_path.'" />';
+         	$html .= 'src="'.$img->image800.'" />';
 
          }elseif ($size == '400') {
 
@@ -723,7 +722,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->image_400_path.'" />';
+         	$html .= 'src="'.$img->image400.'" />';
 
          }elseif ($size == '200') {
 
@@ -731,7 +730,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->image_200_path.'" />';
+         	$html .= 'src="'.$img->image200.'" />';
 
          }elseif ($size == 'crop') {
 
@@ -739,7 +738,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->crop_image_path.'" />';
+         	$html .= 'src="'.$img->cropImage.'" />';
 
          }elseif ($size == 'preview') {
 
@@ -747,7 +746,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->preview_image_path.'" />';
+         	$html .= 'src="'.$img->previewImage.'" />';
 
          }elseif ($size == 'xcrop') {
 
@@ -755,7 +754,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->xcrop_image_path.'" />';
+         	$html .= 'src="'.$img->xcropImage.'" />';
 
          }elseif ($size == 'thumb') {
 
@@ -763,7 +762,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->thumb_image_path.'" />';
+         	$html .= 'src="'.$img->thumbImage.'" />';
 
          }else {
 
@@ -771,7 +770,7 @@ function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
          	if(!empty($_imageStyle)){
          		$html .= $_imageStyle;
          	}
-         	$html .= 'src="'.$img->large_image_path.'" />';
+         	$html .= 'src="'.$img->largeImage.'" />';
 
          }
          

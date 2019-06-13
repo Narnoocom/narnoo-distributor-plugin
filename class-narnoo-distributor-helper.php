@@ -64,15 +64,16 @@ class Narnoo_Distributor_Helper {
         *   Store keys in a different setting option
         *
         */
-        $_token   = get_option( 'narnoo_distributor_token' );
+        $_token    = get_option( 'narnoo_distributor_token' );
 
-        
+        $_apiToken = get_option( 'narnoo_api_token' );
+       
         /**
         *
         *   Check to see if we have access keys and a token.
         *
         */
-        if( !empty( $options['access_key'] ) && !empty( $options['secret_key'] ) && empty($_token) ){
+        if( !empty( $options['access_key'] ) && !empty( $options['secret_key'] ) && empty( $_token ) ){
             /**
             *
             *   Call the Narnoo authentication to return our access token
@@ -80,6 +81,8 @@ class Narnoo_Distributor_Helper {
             */
             $requestToken = new Narnooauthen( $options['access_key'],$options['secret_key'] );
             $token        =  $requestToken->authenticate();
+            
+            
             if(!empty($token)){
                 /**
                 *
@@ -91,15 +94,33 @@ class Narnoo_Distributor_Helper {
             }else{
                 return null;
             }
-
-
         }
+
+        /**
+        *
+        *   Check to see if we have access keys and a token for the latest API
+        *
+        */
+        if( !empty( $options['access_key'] ) && !empty( $options['secret_key'] ) && empty( $_apiToken ) ){
+            //Try get API token
+            $narnooToken = new NarnooToken();
+            $apiToken = $narnooToken->authenticate($options['access_key'], $options['secret_key']);
+            if(!empty($apiToken)){
+                 update_option( 'narnoo_api_token', $apiToken, 'yes' );
+            }else{
+                return null;
+            }
+        }
+
 
         /**
         *
         *   Create authentication Header to access the API.
         *
         **/
+        if(empty($_token)){
+            $_token    = get_option( 'narnoo_distributor_token' );
+        }
 
         $api_settings = array(
             "API-KEY: ".$options['access_key'],
@@ -107,18 +128,40 @@ class Narnoo_Distributor_Helper {
             "Authorization: ".$_token
             );
 
+        if(empty($_apiToken)){
+           $_apiToken = get_option( 'narnoo_api_token' );
+        }
 
+        /**
+        *
+        *       Check to see if the current token is expired or not
+        *
+        **/
+        $narnooToken = new NarnooToken();
+        $tokenValid = $narnooToken->validCheck( $_apiToken );
+        if(empty($tokenValid)){
+            $apiToken = $narnooToken->authenticate($options['access_key'], $options['secret_key']);
+            if(!empty($apiToken)){
+                 update_option( 'narnoo_api_token', $apiToken, 'yes' );
+                 $_apiToken = $apiToken;
+            }else{
+                return null;
+            }
+        }
+        //End
+        
+        //var_dump($_apiToken);
         if ($type === 'operator') {
             
-            $request = new Operatorconnect($api_settings);
-            
-        } elseif( $type === 'builder' ){
+            $request = new Operatorconnect($_apiToken);
 
-            $request = new Listbuilder($api_settings);
+        }elseif( $type === 'new' ){
+
+            $request = new Narnoosdk($_apiToken);
 
         }else{
             
-            $request = new Distributor($api_settings);
+            $request = new Distributor($_apiToken);
             
         }
 
@@ -131,7 +174,6 @@ class Narnoo_Distributor_Helper {
     * Inits our PHP FastCache options
     *
     */
-
     static function init_noo_cache(){
 
         $config = array(
@@ -728,31 +770,27 @@ return ob_get_clean();
             // set success message depending on API function called
             $response['msg'] = __('Success!', NARNOO_DISTRIBUTOR_I18N_DOMAIN);
             $item = $response['response'];
+            
             if (!is_null($item)) {
                 if (isset($item->success) && isset($item->success->successMessage)) {
                     // copy success message directly from API response
                     $response['msg'] = $item->success->successMessage;
                 }
                 if ('downloadBrochure' === $func_name) {
-                
-                    print_r($item);
-                    //die();
-                   // $response['msg'] .= ' <a target="_blank" href="' . $item->download_brochure_file . '">' . __('Download PDF brochure', NARNOO_DISTRIBUTOR_I18N_DOMAIN) . '</a>';
-                
-
+                    $response['msg'] .= ' <a target="_blank" href="' . $item->data . '">' . __('Download PDF brochure', NARNOO_DISTRIBUTOR_I18N_DOMAIN) . '</a>';
                 } else if ('downloadImage' === $func_name) {
-                    $response['msg'] .= ' <a target="_blank" href="' . $item->download_image_file . '">' . __('Download image link', NARNOO_DISTRIBUTOR_I18N_DOMAIN) . '</a>';
+                    $response['msg'] .= ' <a target="_blank" href="' . $item->data . '">' . __('Download image link', NARNOO_DISTRIBUTOR_I18N_DOMAIN) . '</a>';
                 } else if ('downloadVideo' === $func_name) {
-                    $item->download_video_stream_path = uncdata($item->download_video_stream_path);
-                    $item->original_video_path = uncdata($item->original_video_path);
-                    $response['msg'] .= ' <a target="_blank" href="' . $item->download_video_stream_path . '">' . __('Download video stream path', NARNOO_DISTRIBUTOR_I18N_DOMAIN) . '</a>';
-                    $response['msg'] .= ' <a target="_blank" href="' . $item->original_video_path . '">' . __('Original video path', NARNOO_DISTRIBUTOR_I18N_DOMAIN) . '</a>';
+                    // $item->data->converted = uncdata($item->data->converted);
+                    // $item->data->original = uncdata($item->data->original);
+                    $response['msg'] .= ' <a target="_blank" href="' . $item->data->converted . '">' . __('Download video stream path', NARNOO_DISTRIBUTOR_I18N_DOMAIN) . '</a>';
+                    $response['msg'] .= ' <a target="_blank" href="' . $item->data->original . '">' . __('Original video path', NARNOO_DISTRIBUTOR_I18N_DOMAIN) . '</a>';
                 } else if ('getAlbums' === $func_name) {
                     // ensure each album name has slashes stripped
-                    $albums = $item->distributor_albums;
+                    $albums = $item->data->albums;
                     if (is_array($albums)) {
                         foreach ($albums as $album) {
-                            $album->album_name = stripslashes($album->album_name);
+                            $album->title = stripslashes($album->title);
                         }
                     }
                 } 
@@ -879,34 +917,30 @@ return ob_get_clean();
     /**
      * Imports specified operator along with all their media details from Narnoo database into Wordpress posts.
      * */
-    static function import_operator($operator_id) {
+    static function import_operator($operator_id, $import_product = true) {
         global $user_ID;
         $options = get_option('narnoo_distributor_settings');
         
         // init the API request objects
         $request            = self::init_api();
-        $requestOperator    = self::init_api('builder');
         
-        if (is_null($request) || is_null($requestOperator)) {
+        if ( is_null($request) ) {
             throw new Exception(__('Incorrect API keys specified.', NARNOO_DISTRIBUTOR_I18N_DOMAIN));
         }
 
         // get operator details
-        $operator = $requestOperator->builder( $operator_id,NULL,NULL,NULL,TRUE,TRUE ); //UPDATED THIS LINE OF CODE
-        
-        //print_r($operator);
-        //die();
+        $operator = $request->business_listing( $operator_id ); //UPDATED THIS LINE OF CODE
 
-        $category = strtolower($operator->category);
+        $category = strtolower($operator->data->profile->category);
 
         // get existing sub_category post, or create new one if it doesn't exist - the main page for the sub_category
         $sub_category_post_id = 0;
-        if (!empty($operator->sub_category)) {
+        if (!empty($operator->data->profile->subCategory)) {
 
-            $sub_category_post_id = Narnoo_Distributor_Helper::get_post_id_for_imported_sub_category($category, $operator->sub_category);
+            $sub_category_post_id = Narnoo_Distributor_Helper::get_post_id_for_imported_sub_category($category, $operator->data->profile->subCategory);
             if ($sub_category_post_id === false) {
                 $new_sub_category_post = array(
-                    'post_title'        => $operator->sub_category,
+                    'post_title'        => $operator->data->profile->subCategory,
                     'post_content'      => '',
                     'post_status'       => 'publish',
                     'post_date'         => date('Y-m-d H:i:s'),
@@ -916,63 +950,101 @@ return ob_get_clean();
                     'ping_status'       => 'closed',
                     );
                 $sub_category_post_id = wp_insert_post($new_sub_category_post);
-                update_post_meta($sub_category_post_id, 'narnoo_sub_category_archive', $operator->sub_category);
+                update_post_meta($sub_category_post_id, 'narnoo_sub_category_archive', $operator->data->profile->subCategory);
             }
         }
 
         // get existing post with operator id, if any
         $post_id = Narnoo_Distributor_Helper::get_post_id_for_imported_operator_id($operator_id);
 
+        $operator_description = '';
+        $operator_excerpt = '';
+        $featureImage = '';
+        foreach ($operator->data->biography as $desc) {
+            if( $desc->language == 'english' ) {
+                if( $desc->size == 'description' ) {
+                    $operator_description = $desc->text;
+                } else if( $desc->size == 'summary' ) {
+                    $operator_excerpt = strip_tags( $desc->text );
+                }
+            }
+        }
+
+        foreach ( $operator->data->images as $image ) {
+            if( isset( $image->featureImage ) && $image->featureImage == 1 ) {
+                $featureImage = $image;
+            }
+        }
+
         if ($post_id !== false) {
             // update existing post, ensuring parent is correctly set
             $update_post_fields = array(
                 'ID'            => $post_id,
-                'post_title'    => $operator->business_name,
+                'post_title'    => $operator->data->profile->name,
                 'post_type'     => 'narnoo_' . $category,
                 'post_status'   => 'publish',
                 'post_parent'   => $sub_category_post_id,
                 );
             wp_update_post($update_post_fields);
             
-            update_post_meta($post_id, 'data_source',            'narnoo');
-            update_post_meta($post_id, 'operator_excerpt',        strip_tags( $operator->description->english->summary_text->text ) );
-            update_post_meta($post_id, 'operator_description',    $operator->description->english->full_text->text );
-
-            $feature = get_the_post_thumbnail($post_id);
-            if(empty($feature)){
-                    if( !empty( $operator->feature_image->xxlarge_image_path ) ){
-                        $url            = "https:" . $operator->feature_image->xxlarge_image_path;
-                        $desc           = $operator->business_name . " feature image";
-                        $feature_image  = media_sideload_image($url, $post_id, $desc, 'src');
-                        if(!empty($feature_image)){
-                            global $wpdb;
-                            $attachment     = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $feature_image )); 
-                            set_post_thumbnail( $post_id, $attachment[0] );
-                        }
-                    }
+            update_post_meta($post_id, 'data_source', 'narnoo');
+            update_post_meta($post_id, 'operator_description', $operator_description );
+            update_post_meta($post_id, 'operator_excerpt', $operator_excerpt );
+                    
+            if( !empty( $featureImage ) ){
+                $url            = "https:" . $featureImage->xxlargeImage;
+                $desc           = $operator->data->profile->name . " feature image";
+                $feature_image  = media_sideload_image($url, $post_id, $desc, 'src');
+                if(!empty($feature_image)){
+                    global $wpdb;
+                    $attachment     = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $feature_image )); 
+                    set_post_thumbnail( $post_id, $attachment[0] );
+                }
             }
-
+    
             $success_message = __('Success! Re-imported operator details to existing %1s post (%2s)', NARNOO_DISTRIBUTOR_I18N_DOMAIN);
         } else {
             // create new post with operator details
-            $new_post_fields = array(
-                'post_title'        => $operator->business_name,
-                'post_content'      => $operator->description->english->full_text->text,
-                'post_excerpt'      => strip_tags( $operator->description->english->summary_text->text ),
-                'post_status'       => 'publish',
-                'post_date'         => date('Y-m-d H:i:s'),
-                'post_author'       => $user_ID,
-                'post_type'         => 'narnoo_' . $category,
-                'comment_status'    => 'closed',
-                'ping_status'       => 'closed',
-                'post_parent'       => $sub_category_post_id,
+            global $wpdb;
+            $lastid = $wpdb->insert_id;
+            if($lastid == $post_id){
+                $new_post_fields = array(
+                    'ID'            => $lastid,
+                    'post_title'        => $operator->data->profile->name,
+                    'post_content'      => $operator_description,
+                    'post_excerpt'      => $operator_excerpt,
+                    'post_status'       => 'publish',
+                    'post_date'         => date('Y-m-d H:i:s'),
+                    'post_author'       => $user_ID,
+                    'post_type'         => 'narnoo_' . $category,
+                    'comment_status'    => 'closed',
+                    'ping_status'       => 'closed',
+                    'post_parent'       => $sub_category_post_id,
                 );
-            $post_id = wp_insert_post($new_post_fields);
+                //print_r($new_post_fields); exit('update');
+                //echo 'Update'; exit();
+                $post_id = wp_insert_post($new_post_fields);
+                //$post_id = wp_update_post($new_post_fields);  
+            }else{
+                $new_post_fields = array(
+                    'post_title'        => $operator->data->profile->name,
+                    'post_content'      => $operator_description,
+                    'post_excerpt'      => $operator_excerpt,
+                    'post_status'       => 'publish',
+                    'post_date'         => date('Y-m-d H:i:s'),
+                    'post_author'       => $user_ID,
+                    'post_type'         => 'narnoo_' . $category,
+                    'comment_status'    => 'closed',
+                    'ping_status'       => 'closed',
+                    'post_parent'       => $sub_category_post_id,
+                    );
+                $post_id = wp_insert_post($new_post_fields);
+            }
 
             // set a feature image for this post
-            if( !empty( $operator->feature_image->xxlarge_image_path ) ){
-                $url            = "https:" . $operator->feature_image->xxlarge_image_path;
-                $desc           = $operator->business_name . " feature image";
+            if( !empty( $featureImage ) ){
+                $url            = "https:" . $featureImage->xxlargeImage;
+                $desc           = $operator->data->profile->name . " feature image";
                 $feature_image  = media_sideload_image($url, $post_id, $desc, 'src');
                 if(!empty($feature_image)){
                     global $wpdb;
@@ -986,39 +1058,47 @@ return ob_get_clean();
 
         // insert/update custom fields with operator details into post
         update_post_meta($post_id, 'data_source',            'narnoo');
-        update_post_meta($post_id, 'operator_id',            $operator->narnoo_id);
-        update_post_meta($post_id, 'category',               $operator->category);
-        update_post_meta($post_id, 'sub_category',           $operator->sub_category);
-        update_post_meta($post_id, 'businessname',           $operator->business_name);
-        update_post_meta($post_id, 'country_name',           $operator->country);
-        update_post_meta($post_id, 'state',                  $operator->state);
-        update_post_meta($post_id, 'suburb',                 $operator->suburb);
-        update_post_meta($post_id, 'location',               $operator->location);
-        update_post_meta($post_id, 'postcode',               $operator->postcode);
-        update_post_meta($post_id, 'keywords',               $operator->keywords);
-        update_post_meta($post_id, 'phone',                  $operator->phone);
-        update_post_meta($post_id, 'url',                    $operator->url);
-        update_post_meta($post_id, 'email',                  $operator->email);
-        update_post_meta($post_id, 'latitude',               $operator->latitude);
-        update_post_meta($post_id, 'longitude',              $operator->longitude);
+        update_post_meta($post_id, 'operator_id',            $operator->data->profile->id);
+        update_post_meta($post_id, 'category',               $operator->data->profile->category);
+        update_post_meta($post_id, 'sub_category',           $operator->data->profile->subCategory);
+        update_post_meta($post_id, 'businessname',           $operator->data->profile->name);
+        update_post_meta($post_id, 'country_name',           $operator->data->profile->country);
+        update_post_meta($post_id, 'state',                  $operator->data->profile->state);
+        update_post_meta($post_id, 'suburb',                 $operator->data->profile->suburb);
+        update_post_meta($post_id, 'location',               $operator->data->profile->location);
+        update_post_meta($post_id, 'postcode',               $operator->data->profile->postcode);
+        update_post_meta($post_id, 'keywords',               $operator->data->profile->keywords);
+        update_post_meta($post_id, 'phone',                  $operator->data->profile->phone);
+        update_post_meta($post_id, 'url',                    $operator->data->profile->url);
+        update_post_meta($post_id, 'email',                  $operator->data->profile->email);
+        update_post_meta($post_id, 'latitude',               $operator->data->profile->latitude);
+        update_post_meta($post_id, 'longitude',              $operator->data->profile->longitude);
         //Import social media links
-        update_post_meta($post_id, 'facebook',               $operator->operator_social->facebook);
-        update_post_meta($post_id, 'twitter',                $operator->operator_social->twitter);
-        update_post_meta($post_id, 'instagram',              $operator->operator_social->instagram);
-        update_post_meta($post_id, 'youtube',                $operator->operator_social->youtube);
-        update_post_meta($post_id, 'tripadvisor',            $operator->operator_social->tripadvisor_url);
+        update_post_meta($post_id, 'facebook',               $operator->data->social->facebook);
+        update_post_meta($post_id, 'twitter',                $operator->data->social->twitter);
+        update_post_meta($post_id, 'instagram',              $operator->data->social->instagram);
+        update_post_meta($post_id, 'youtube',                $operator->data->social->youtube);
+        update_post_meta($post_id, 'tripadvisor',            $operator->data->social->tripadvisor);
 
         /*
         Import the products? Or do we just use the operator information?
         */
-        if ( !empty( $options['operator_import'] )  ) {
-
-           $opResponse = self::import_operator_products( $operator->narnoo_id, $operator->category, $operator->sub_category, $operator->business_name, $post_id );
-           if(!empty($opResponse)){
-                update_post_meta($post_id, 'products',            $opResponse);
-           }
-
-        }
+        //if ( !empty( $options['operator_import'] )  ) {
+            if( !$import_product ) {
+                return array( 
+                    "op_id"               => $operator->data->profile->id,
+                    "profile_catgegory"   => $operator->data->profile->category,
+                    "profile_subCategory" => $operator->data->profile->subCategory,
+                    "profile_name"        => $operator->data->profile->name,
+                    "post_id"             => $post_id
+                );
+            } /*else {
+                $opResponse = self::import_operator_products( $operator->data->profile->id, $operator->data->profile->category, $operator->data->profile->subCategory, $operator->data->profile->name, $post_id );
+                if(!empty($opResponse)){
+                    update_post_meta($post_id, 'products',            $opResponse);
+                }
+            }*/
+        //}
 
 
         // return response object
@@ -1026,9 +1106,10 @@ return ob_get_clean();
         $response->success = new stdClass();
         $response->success->successMessage = 
         sprintf( $success_message, 
-         '<a target="_blank" href="edit.php?post_type=narnoo_' . esc_attr( $category ) . '">' . esc_html( ucfirst( $category ) ) . ( empty( $operator->sub_category ) ? '' : '/' . $operator->sub_category ) . '</a>',
+         '<a target="_blank" href="edit.php?post_type=narnoo_' . esc_attr( $category ) . '">' . esc_html( ucfirst( $category ) ) . ( empty( $operator->data->profile->subCategory ) ? '' : '/' . $operator->data->profile->subCategory ) . '</a>',
          '<a target="_blank" href="post.php?post=' . $post_id . '&action=edit">ID #' . $post_id . '</a>'
          );
+        //'<a target="_blank" href="post.php?post=' . $post_id . '&action=edit">ID #' . $post_id . '</a>'
         $response->category = $category;
         return $response;
     }
@@ -1039,20 +1120,40 @@ return ob_get_clean();
     *   @title: Import an operators products
     *
     */
-    static function import_operator_products( $op_id, $category, $subCategory, $businessName, $postId ){
+    static function import_operator_products( $op_id, $category, $subCategory, $businessName, $postId, $product_id = '' ){
 
         // init the API request objects
         $request            = self::init_api();
-        $requestOperator    = self::init_api('operator');
-        
+        $requestOperator    = self::init_api('new');
+
         if (is_null($request) || is_null($requestOperator)) {
             throw new Exception(__('Incorrect API keys specified.', NARNOO_DISTRIBUTOR_I18N_DOMAIN));
         }
+        if( !empty($product_id) ) {
 
-        // get operator details
-        $products = $requestOperator->getProducts( $op_id );
-        if(empty($products) || empty($products->success)){
-           return false;
+            $product_arr = new stdClass();
+            $product_arr->productId = $product_id;
+
+            $products = new stdClass();
+            $products->product = array( $product_arr );
+
+        } else {
+
+            // get operator details
+            $import_bookable_product = apply_filters( 'narnoo_import_only_bookalble_product', false );
+            if( $import_bookable_product ){
+                $products = $requestOperator->getBookableProducts( $op_id );
+            } else {
+                $products = $requestOperator->getProducts( $op_id );
+            }
+
+            if(empty($products) || empty($products->success)){
+               return false;
+            }
+
+            if( !isset($products->product) && isset($products->data->data) ) {
+                $products->product = $products->data->data;
+            }
         }
 
         /*
@@ -1072,159 +1173,158 @@ return ob_get_clean();
         *************************************************************************************/
         foreach ($products->product as $item) {
 
+            $item_product_id = isset($item->product_id) ? $item->product_id : $item->productId;
 
-            $productDetails = $requestOperator->getProductDetails( $op_id, $item->product_id );
-            
+            $productDetails = $requestOperator->getProductDetails( $item_product_id, $op_id );
 
             if(!empty($productDetails) || !empty($productDetails->success)){
-                        $postData = self::get_post_id_for_imported_product_id( $productDetails->product_id );
 
-                        if ( !empty( $postData['id'] ) && $postData['status'] !== 'trash') {
-                                $post_id = $postData['id'];
-                                // update existing post, ensuring parent is correctly set
-                                $update_post_fields = array(
-                                    'ID'            => $post_id,
-                                    'post_title'    => $productDetails->product_title,
-                                    'post_type'     => 'narnoo_product',
-                                    'post_status'   => 'publish',
-                                    'post_author'   => $user_ID,
-                                    'post_modified' => date('Y-m-d H:i:s')
-                                );
-                                wp_update_post($update_post_fields);
+                $postData = self::get_post_id_for_imported_product_id( $productDetails->data->productId );
 
-                                
-                                update_post_meta( $post_id, 'product_description', $productDetails->description->english->text);
-                                update_post_meta( $post_id, 'product_excerpt',  strip_tags( $productDetails->summary->english->text ));
-
-                               // set a feature image for this post but first check to see if a feature is present
-
-                                $feature = get_the_post_thumbnail($post_id);
-                                if(empty($feature)){
-
-                                    if( !empty( $productDetails->feature_image->xxlarge_image_path ) ){
-                                    $url = "https:" . $productDetails->feature_image->xxlarge_image_path;
-                                    $desc = $productDetails->product_title . " product image";
-                                    $feature_image = media_sideload_image($url, $post_id, $desc);
-                                    if(!empty($feature_image)){
-                                        global $wpdb;
-                                        $attachment     = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $feature_image )); 
-                                        set_post_thumbnail( $post_id, $attachment[0] );
-                                    }
-                                }
-
-                                }
-
-                                //$response['msg'] = "Successfully re-imported product details";
-
-                        }else{
-                    
-                        //create new post with operator details
-                        $new_post_fields = array(
-                            'post_title'        => $productDetails->product_title,
-                            'post_status'       => 'publish',
-                            'post_date'         => date('Y-m-d H:i:s'),
-                            'post_author'       => $user_ID,
-                            'post_type'         => 'narnoo_product',
-                            'comment_status'    => 'closed',
-                            'ping_status'       => 'closed'
+                if ( !empty( $postData['id'] ) && $postData['status'] !== 'trash') {
+                        $post_id = $postData['id'];
+                        // update existing post, ensuring parent is correctly set
+                        $update_post_fields = array(
+                            'ID'            => $post_id,
+                            'post_title'    => $productDetails->data->title,
+                            'post_type'     => 'narnoo_product',
+                            'post_status'   => 'publish',
+                            'post_author'   => $user_ID,
+                            'post_modified' => date('Y-m-d H:i:s')
                         );
+                        wp_update_post($update_post_fields);
 
-                        if(!empty($productDetails->summary->english->text)){
-                            $new_post_fields['post_excerpt'] = strip_tags( $productDetails->summary->english->text );
-                        }
-
-                        if(!empty($productDetails->description->english->text)){
-                            $new_post_fields['post_content'] = strip_tags( $productDetails->description->english->text );
-                        }
-                       
-                        $post_id = wp_insert_post($new_post_fields);
                         
-                        // set a feature image for this post
-                        if( !empty( $productDetails->feature_image->xxlarge_image_path ) ){
-                            $url = "https:" . $productDetails->feature_image->xxlarge_image_path;
-                            $desc = $productDetails->product_title . " product image";
-                            $feature_image = media_sideload_image($url, $post_id, $desc);
+                        update_post_meta( $post_id, 'product_description', $productDetails->data->description->description[0]->english->text);
+                        update_post_meta( $post_id, 'product_excerpt',  strip_tags( $productDetails->data->description->summary[0]->english->text ));
+
+                       // set a feature image for this post but first check to see if a feature is present
+
+                        $feature = get_the_post_thumbnail($post_id);
+                        if(empty($feature)){
+
+                            if( !empty( $productDetails->data->featureImage->xxlargeImage ) ){
+                            $url = "https:" . $productDetails->data->featureImage->xxlargeImage;
+                            $desc = $productDetails->data->title . " product image";
+                            $feature_image = media_sideload_image($url, $post_id, $desc, 'id');
                             if(!empty($feature_image)){
-                                global $wpdb;
-                                $attachment     = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $feature_image )); 
-                                set_post_thumbnail( $post_id, $attachment[0] );
+                                set_post_thumbnail( $post_id, $feature_image );
                             }
                         }
-                        
-                        //$response['msg'] = "Successfully imported product details";
 
-                      }
+                        }
+
+                        //$response['msg'] = "Successfully re-imported product details";
+                        $success_message = __('Success! Re-imported Product details to existing %1s post (%2s)', NARNOO_OPERATOR_CONNECT_I18N_DOMAIN);
+
+                }else{
+                
+                    //create new post with operator details
+                    $new_post_fields = array(
+                        'post_title'        => $productDetails->data->title,
+                        'post_status'       => 'publish',
+                        'post_date'         => date('Y-m-d H:i:s'),
+                        'post_author'       => $user_ID,
+                        'post_type'         => 'narnoo_product',
+                        'comment_status'    => 'closed',
+                        'ping_status'       => 'closed'
+                    );
+
+                    if(!empty($productDetails->data->description->summary[0]->english->text)){
+                        $new_post_fields['post_excerpt'] = strip_tags( $productDetails->data->description->summary[0]->english->text );
+                    }
+
+                    if(!empty($productDetails->data->description->description[0]->english->text)){
+                        $new_post_fields['post_content'] = strip_tags( $productDetails->data->description->description[0]->english->text );
+                    }
+                   
+                    $post_id = wp_insert_post($new_post_fields);
                     
-
-                    // insert/update custom fields with operator details into post
+                    // set a feature image for this post
+                    if( !empty( $productDetails->data->featureImage->xxlargeImage ) ){
+                        $url = "https:" . $productDetails->data->featureImage->xxlargeImage;
+                        $desc = $productDetails->data->title . " product image";
+                        $feature_image = media_sideload_image($url, $post_id, $desc, 'id');
+                        if(!empty($feature_image)){
+                            set_post_thumbnail( $post_id, $feature_image );
+                        }
+                    }
                     
-                    if(!empty($productDetails->primary)){
-                        update_post_meta($post_id, 'primary_product',               "Primary Product");
-                    }else{
-                        update_post_meta($post_id, 'primary_product',               "Product");
-                    }
-                     
+                    //$response['msg'] = "Successfully imported product details";
+                    $success_message = __('Success! Product details to new %1s post (%2s)', NARNOO_OPERATOR_CONNECT_I18N_DOMAIN);
+
+                }
+                
+
+                // insert/update custom fields with operator details into post
+                
+                if(!empty($productDetails->data->primary)){
+                    update_post_meta($post_id, 'primary_product',               "Primary Product");
+                }else{
+                    update_post_meta($post_id, 'primary_product',               "Product");
+                }
+                 
+                
+
+                update_post_meta($post_id, 'narnoo_operator_id',            $op_id); 
+                update_post_meta($post_id, 'narnoo_operator_name',          $businessName);
+                update_post_meta($post_id, 'parent_post_id',                $postId);
+                update_post_meta($post_id, 'narnoo_booking_id',             $productDetails->data->bookingId);  
+                update_post_meta($post_id, 'narnoo_product_id',             $productDetails->data->productId);
+                update_post_meta($post_id, 'product_min_price',             $productDetails->data->minPrice);
+                update_post_meta($post_id, 'product_avg_price',             $productDetails->data->avgPrice);
+                update_post_meta($post_id, 'product_max_price',             $productDetails->data->maxPrice);
+                update_post_meta($post_id, 'product_booking_link',          $productDetails->data->directBooking);
+                
+                update_post_meta($post_id, 'narnoo_listing_category',       $category);
+                update_post_meta($post_id, 'narnoo_listing_subcategory',    $subCategory);
+
+                if( lcfirst( $category ) == 'attraction' ){
+
+
+                    update_post_meta($post_id, 'narnoo_product_duration',   $productDetails->data->additionalInformation->operatingHours);
+                    update_post_meta($post_id, 'narnoo_product_start_time', $productDetails->data->additionalInformation->startTime);
+                    update_post_meta($post_id, 'narnoo_product_end_time',   $productDetails->data->additionalInformation->endTime);
+                    update_post_meta($post_id, 'narnoo_product_transport',  $productDetails->data->additionalInformation->transfer);
+                    update_post_meta($post_id, 'narnoo_product_purchase',   $productDetails->data->additionalInformation->purchases);
+                    update_post_meta($post_id, 'narnoo_product_health',     $productDetails->data->additionalInformation->fitness);
+                    update_post_meta($post_id, 'narnoo_product_packing',    $productDetails->data->additionalInformation->packing);
+                    update_post_meta($post_id, 'narnoo_product_children',   $productDetails->data->additionalInformation->child);
+                    update_post_meta($post_id, 'narnoo_product_additional', $productDetails->data->additionalInformation->additional);
                     
+                }
+                /**
+                *
+                *   Import the gallery images as JSON encoded object
+                *
+                */
+                if(!empty($productDetails->data->gallery)){
+                    update_post_meta($post_id, 'narnoo_product_gallery', json_encode($productDetails->data->gallery) );
+                }else{
+                    delete_post_meta($post_id, 'narnoo_product_gallery');
+                }
+                /**
+                *
+                *   Import the video player object
+                *
+                */
+                if(!empty($productDetails->data->featureVideo)){
+                    update_post_meta($post_id, 'narnoo_product_video', json_encode($productDetails->data->featureVideo) );
+                }else{
+                    delete_post_meta($post_id, 'narnoo_product_video');
+                }
+                /**
+                *
+                *   Import the brochure object
+                *
+                */
+                if(!empty($productDetails->data->featurePrint)){   
 
-                    update_post_meta($post_id, 'narnoo_operator_id',            $op_id); 
-                    update_post_meta($post_id, 'narnoo_operator_name',          $businessName);
-                    update_post_meta($post_id, 'parent_post_id',                $postId);
-                    update_post_meta($post_id, 'narnoo_booking_id',             $productDetails->booking_id);  
-                    update_post_meta($post_id, 'narnoo_product_id',             $productDetails->product_id);
-                    update_post_meta($post_id, 'product_min_price',             $productDetails->min_price);
-                    update_post_meta($post_id, 'product_avg_price',             $productDetails->avg_price);
-                    update_post_meta($post_id, 'product_max_price',             $productDetails->max_price);
-                    update_post_meta($post_id, 'product_booking_link',          $productDetails->direct_booking);
-                    
-                    update_post_meta($post_id, 'narnoo_listing_category',       $category);
-                    update_post_meta($post_id, 'narnoo_listing_subcategory',    $subCategory);
+                    update_post_meta($post_id, 'narnoo_product_print', json_encode($productDetails->data->featurePrint) );
+                }else{
 
-                    if( lcfirst( $category ) == 'attraction' ){
-
-
-                        update_post_meta($post_id, 'narnoo_product_duration',   $productDetails->details->operating_hours);
-                        update_post_meta($post_id, 'narnoo_product_start_time', $productDetails->details->start_time);
-                        update_post_meta($post_id, 'narnoo_product_end_time',   $productDetails->details->end_time);
-                        update_post_meta($post_id, 'narnoo_product_transport',  $productDetails->details->pickup_departure);
-                        update_post_meta($post_id, 'narnoo_product_purchase',   $productDetails->details->purchase_options);
-                        update_post_meta($post_id, 'narnoo_product_health',     $productDetails->details->health_requirements);
-                        update_post_meta($post_id, 'narnoo_product_packing',    $productDetails->details->what_to_bring);
-                        update_post_meta($post_id, 'narnoo_product_children',   $productDetails->details->children_information);
-                        update_post_meta($post_id, 'narnoo_product_additional', $productDetails->details->additional_information);
-                        
-                    }
-                    /**
-                    *
-                    *   Import the gallery images as JSON encoded object
-                    *
-                    */
-                    if(!empty($productDetails->gallery)){
-                        update_post_meta($post_id, 'narnoo_product_gallery', json_encode($productDetails->gallery) );
-                    }else{
-                        delete_post_meta($post_id, 'narnoo_product_gallery');
-                    }
-                    /**
-                    *
-                    *   Import the video player object
-                    *
-                    */
-                    if(!empty($productDetails->feature_video)){
-                        update_post_meta($post_id, 'narnoo_product_video', json_encode($productDetails->feature_video) );
-                    }else{
-                        delete_post_meta($post_id, 'narnoo_product_video');
-                    }
-                    /**
-                    *
-                    *   Import the brochure object
-                    *
-                    */
-                    if(!empty($productDetails->feature_print)){   
-
-                        update_post_meta($post_id, 'narnoo_product_print', json_encode($productDetails->feature_print) );
-                    }else{
-
-                        delete_post_meta($post_id, 'narnoo_product_print');
-                    }
+                    delete_post_meta($post_id, 'narnoo_product_print');
+                }
                         
             } //if success
         
@@ -1235,9 +1335,19 @@ return ob_get_clean();
         *
         *************************************************************************************/
         
-
-        return $products->total_products;
-
+        if( !empty($product_id) ) {
+            // return response object
+            $response = new stdClass();
+            $response->success = new stdClass();
+            $response->success->successMessage = 
+            sprintf( $success_message, 
+             '<a target="_blank" href="edit.php?post_type=narnoo_product">' . esc_html( ucfirst( $productDetails->data->title ) ) . '</a>',
+             '<a target="_blank" href="post.php?post=' . $post_id . '&action=edit">ID #' . $post_id . '</a>'
+             );
+            return $response;
+        } else {
+            return $products->total_products;
+        }
     }
 
     /**
@@ -1284,7 +1394,7 @@ return ob_get_clean();
             self::ajax_fatal_error(__('AJAX error: Missing arguments.', NARNOO_DISTRIBUTOR_I18N_DOMAIN));
         }
 
-        $url = $_POST['image_url'];
+        $url = 'https:'.$_POST['image_url'];
         $image_title = $_POST['image_title'];
 
         $tmp = download_url($url);
@@ -1295,6 +1405,7 @@ return ob_get_clean();
 
         // Check for download errors
         if (is_wp_error($tmp)) {
+            echo $tmp->get_error_message();
             @unlink($file_array['tmp_name']);
             self::ajax_fatal_error(sprintf(__('AJAX error: Could not download image <a href="%s">%s</a>.', NARNOO_DISTRIBUTOR_I18N_DOMAIN), $url, $url));
         }

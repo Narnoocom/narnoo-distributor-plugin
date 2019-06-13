@@ -19,7 +19,7 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 
 	function column_thumbnail_image( $item ) {    
 		$actions = array(
-			'add_to_channel'  => sprintf( 
+			/* 'add_to_channel'  => sprintf( 
 									'<a href="?%s">%s</a>', 
 									build_query( 
 										array(
@@ -34,8 +34,8 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 										)
 									),
 									__( 'Add to channel', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) 
-								),
-			/*'download'    	=> sprintf( 
+								), */
+			'download'    	=> sprintf( 
 									'<a href="?%s">%s</a>', 
 									build_query( 
 										array(
@@ -49,7 +49,7 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 										)
 									),
 									__( 'Download', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) 
-								),*/
+								),
 		);
 		return sprintf( 
 			'<input type="hidden" name="url%1$s" value="%2$s" /> %3$s <br /> %4$s', 
@@ -79,8 +79,8 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 
 	function get_bulk_actions() {
 		$actions = array(
-			'add_to_channel'=> __( 'Add to channel', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
-			///'download'		=> __( 'Download', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
+			// 'add_to_channel'=> __( 'Add to channel', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
+			'download'		=> __( 'Download', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
 		);
 		return $actions;
 	}
@@ -262,22 +262,22 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 					//}
 				//}
 
-				if ( ! is_array( $list_m->operator_videos ) ) {
+				if ( ! is_array( $list_m->data->videos ) ) {
 					throw new Exception( sprintf( __( "Error retrieving videos. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
 				}
 			} catch ( Exception $ex ) {
 				Narnoo_Distributor_Helper::show_api_error( $ex );
 			} 
 		}
-		
-		if ( ! is_null( $list_m ) ) {
-			$data['total_pages'] = max( 1, intval( $list_m->total_pages ) );
-			foreach ( $list_m->operator_videos as $video ) {
-				$item['thumbnail_image'] 	= $video->video_thumb_image_path;
-				$item['caption'] 			= $video->video_caption;
-				$item['entry_date'] 		= $video->entry_date;
-				$item['video_id'] 			= $video->video_id;
-				$item['embed_id'] 			= $video->embed_id;
+
+		if ( ! is_null( $list_m->data->videos ) ) {
+			$data['total_pages'] = max( 1, intval( $list_m->data->totalPages ) );
+			foreach ( $list_m->data->videos as $video ) {
+				$item['thumbnail_image'] 	= $video->thumbImage;
+				$item['caption'] 			= $video->caption;
+				$item['entry_date'] 		= $video->uploadedAt;
+				$item['video_id'] 			= $video->id;
+				$item['embed_id'] 			= $video->videoPreview;
 				$data['items'][] = $item;
 			}
 		}

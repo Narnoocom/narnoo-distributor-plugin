@@ -15,7 +15,7 @@ class Narnoo_Distributor_Operator_Media_Table extends WP_List_Table {
 				Narnoo_Distributor_Helper::show_error( __( 'Please key in a valid operator ID.', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) );
 				return;
 			}
-			
+
 			$this->operator_id = trim( $_REQUEST['operator_id_input'] );
 			$request = Narnoo_Distributor_Helper::init_api('operator');
 			//$cache	 		= Narnoo_Distributor_Helper::init_noo_cache();
@@ -32,20 +32,20 @@ class Narnoo_Distributor_Operator_Media_Table extends WP_List_Table {
 						//}
 					//}
                 	
-					if ( ! isset( $operator->operator_businessname ) ) {
+					if ( ! isset( $operator->data->details->id ) ) {
 						throw new Exception( sprintf( __( "Error retrieving operator %s. Unexpected format in response.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $this->operator_id ) );
 					}
 					
-                    $this->operator_id 		= $operator->operator_id;
-                    $this->operator_name 	= $operator->operator_businessname;
+                    $this->operator_id 		= $operator->data->details->id;
+                    $this->operator_name 	= $operator->data->details->business;
 					return;
 				} catch ( Exception $ex ) {
 					Narnoo_Distributor_Helper::show_api_error( $ex );
 					return;
 				} 
 			}
-		}	
-		
+		}
+
 		if ( isset( $_REQUEST['operator_id'] ) ) {
 			$this->operator_id = $_REQUEST['operator_id'];
 		}
@@ -109,6 +109,7 @@ class Narnoo_Distributor_Operator_Media_Table extends WP_List_Table {
 			case 'Images': $narnoo_distributor_operator_media_table 	= new Narnoo_Distributor_Operator_Images_Table(); break;
 			//case 'Albums': $narnoo_distributor_operator_media_table 	= new Narnoo_Distributor_Operator_Albums_Table(); break;
 			case 'Videos': $narnoo_distributor_operator_media_table 	= new Narnoo_Distributor_Operator_Videos_Table(); break;
+			case 'Brochures':
 			case 'Print': $narnoo_distributor_operator_media_table 		= new Narnoo_Distributor_Operator_Brochures_Table(); break;
 		}		
 	}	
