@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Narnoo\Access;
 /**

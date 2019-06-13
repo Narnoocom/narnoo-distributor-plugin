@@ -19,7 +19,7 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 
 	function column_thumbnail_image( $item ) {    
 		$actions = array(
-			'add_to_channel'  => sprintf( 
+			/* 'add_to_channel'  => sprintf( 
 									'<a href="?%s">%s</a>', 
 									build_query( 
 										array(
@@ -34,8 +34,8 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 										)
 									),
 									__( 'Add to channel', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) 
-								),
-			/*'download'    	=> sprintf( 
+								), */
+			'download'    	=> sprintf( 
 									'<a href="?%s">%s</a>', 
 									build_query( 
 										array(
@@ -49,7 +49,7 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 										)
 									),
 									__( 'Download', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) 
-								),*/
+								),
 		);
 		return sprintf( 
 			'<input type="hidden" name="url%1$s" value="%2$s" /> %3$s <br /> %4$s', 
@@ -79,8 +79,8 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 
 	function get_bulk_actions() {
 		$actions = array(
-			'add_to_channel'=> __( 'Add to channel', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
-			///'download'		=> __( 'Download', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
+			// 'add_to_channel'=> __( 'Add to channel', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
+			'download'		=> __( 'Download', NARNOO_DISTRIBUTOR_I18N_DOMAIN )
 		);
 		return $actions;
 	}
@@ -248,7 +248,7 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 		
 		$list_m = null;
 		$current_page = $this->get_pagenum();
-		$request 			= Narnoo_Distributor_Helper::init_api( 'new' );
+		$request 			= Narnoo_Distributor_Helper::init_api( 'operator' );
 		//$cache	 		= Narnoo_Distributor_Helper::init_noo_cache();
 		if ( ! is_null( $request ) ) {
 			try {
@@ -256,30 +256,28 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 				//$list_m = $cache->get('op_video_'.$this->operator_id.'_'.$current_page);
 				
 				//if(empty($list_m)){
-					$_params['page'] = $current_page;
-					$list_m = $request->getBusinessVideos( 'operator',$this->operator_id, $_params );
-					//print_r($list_m);
+					$list_m = $request->getVideos( $this->operator_id, $current_page );
 					//if( !empty( $list_m->success ) ){
 					//$cache->set('op_video_'.$this->operator_id.'_'.$current_page, $list_m, 43200);
 					//}
 				//}
 
-				if ( empty( $list_m->success ) ) {
+				if ( ! is_array( $list_m->data->videos ) ) {
 					throw new Exception( sprintf( __( "Error retrieving videos. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
 				}
 			} catch ( Exception $ex ) {
 				Narnoo_Distributor_Helper::show_api_error( $ex );
 			} 
 		}
-		
-		if ( ! is_null( $list_m ) ) {
-			$data['total_pages'] = max( 1, intval( 1 ) );
+
+		if ( ! is_null( $list_m->data->videos ) ) {
+			$data['total_pages'] = max( 1, intval( $list_m->data->totalPages ) );
 			foreach ( $list_m->data->videos as $video ) {
 				$item['thumbnail_image'] 	= $video->thumbImage;
 				$item['caption'] 			= $video->caption;
 				$item['entry_date'] 		= $video->uploadedAt;
 				$item['video_id'] 			= $video->id;
-				$item['embed_id'] 			= "coming";
+				$item['embed_id'] 			= $video->videoPreview;
 				$data['items'][] = $item;
 			}
 		}

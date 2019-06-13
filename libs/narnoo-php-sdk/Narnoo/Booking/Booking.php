@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Narnoo\Booking;
 /**
@@ -6,6 +6,40 @@ namespace Narnoo\Booking;
 */
 class Booking extends \Narnoo\Base
 {
+    
+
+    /**************************************************
+    *
+    *                --- Bookable Products ---
+    *
+    **************************************************/
+    
+     /**
+    *   @title: Get Bookable Products
+    *   @description: Returns a list of only bookable products.
+    *   @date: 18.07.2018
+    *   @param: int operator ID [required]
+    *   @param: int product ID [required]
+    *   @result: JSON
+    */
+    public function getBookableProducts( $operatorId )
+    {   
+        
+        try{
+            //$url = "/booking/bookable_products/".$operatorId;
+            $url = "/booking/products/".$operatorId;
+            
+            $response = $this->callNarnooAPI("get",$url);
+            return $response;
+        } catch (Exception $e) {
+            $response = array("error" => $e->getMessage());
+            return $response;
+        }
+    }
+
+
+
+
     /**************************************************
     *
     *                --- Product Details ---

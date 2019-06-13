@@ -18,5 +18,17 @@ class NarnooToken
 		}
 	}
 
+	public function validCheck($token){
+
+		$authn = new Authenticate();
+		$authn->setToken($token);
+		$token = $authn->valid();
+		if( !empty($token->data) ){
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+
 
 }

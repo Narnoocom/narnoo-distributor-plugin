@@ -3,7 +3,7 @@
  * Product pages metaboxes
  */
 
-/**
+/*
 *
 *	Show a checkbox for featured products
 *
@@ -15,7 +15,7 @@ function narnoo_product_feature() {
     // Start with an underscore to hide fields from custom fields list
     $prefix = 'narnoo_';
 
-    /**
+    /*
      * Initiate the metabox
      */
     $cmb = new_cmb2_box( array(

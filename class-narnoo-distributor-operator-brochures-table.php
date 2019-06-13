@@ -71,6 +71,7 @@ class Narnoo_Distributor_Operator_Brochures_Table extends Narnoo_Distributor_Ope
 	 * Returns false otherwise.
 	 **/
 	function process_action() {
+		
 		if ( isset( $_REQUEST['cancel'] ) ) {
 			Narnoo_Distributor_Helper::show_notification( __( 'Action cancelled.', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) );
 			return true;
@@ -130,7 +131,7 @@ class Narnoo_Distributor_Operator_Brochures_Table extends Narnoo_Distributor_Ope
 
 		$list = null;
 		$current_page = $this->get_pagenum();
-		$request = Narnoo_Distributor_Helper::init_api( 'new' );
+		$request = Narnoo_Distributor_Helper::init_api( 'operator' );
 		//$cache	 		= Narnoo_Distributor_Helper::init_noo_cache();
 		if ( ! is_null( $request ) ) {
 			try {
@@ -139,30 +140,31 @@ class Narnoo_Distributor_Operator_Brochures_Table extends Narnoo_Distributor_Ope
 				//$list = $cache->get('op_print_'.$this->operator_id.'_'.$current_page);
 					
 					//if(empty($list)){
-						$_params['page'] = $current_page;
-						$list = $request->getBusinessPrints( 'operator', $this->operator_id, $_params );
+				
+						$list = $request->getBrochures( $this->operator_id, $current_page );
+
 
 						//if( !empty( $operator->success ) ){
 						//$cache->set('op_print_'.$this->operator_id.'_'.$current_page, $list, 43200);
 						//}
 					//}
 
-				if ( empty( $list->success ) ) {
+				if ( ! is_array( $list->data->prints ) ) {
 					throw new Exception( sprintf( __( "Error retrieving prints. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
 				}
 			} catch ( Exception $ex ) {
 				Narnoo_Distributor_Helper::show_api_error( $ex );
 			} 
 		}
-		
-		if ( ! is_null( $list ) ) {
-			$data['total_pages'] = max( 1, intval( 1 ) );
+
+		if ( ! is_null( $list->data->prints ) ) {
+			$data['total_pages'] = max( 1, intval( $list->data->totalPages ) );
 			foreach ( $list->data->prints as $brochure ) {
 				$item['thumbnail_image'] = $brochure->thumbImage;
-				$item['caption'] 		 = $brochure->caption;
-				$item['entry_date'] 	 = $brochure->uploadedAt;
-				$item['brochure_id']     = $brochure->id;
-				$data['items'][]         = $item;
+				$item['caption'] = $brochure->caption;
+				$item['entry_date'] = $brochure->uploadedAt;
+				$item['brochure_id'] = $brochure->id;
+				$data['items'][] = $item;
 			}
 		}
 

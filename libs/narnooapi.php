@@ -4,9 +4,8 @@ include "narnoo-php-sdk/vendor/autoload.php";
 
 
 use Narnoo\Connect\Connect;
-use Narnoo\Media\Media;
-use Narnoo\Access\Access;
-
+use Narnoo\Product\Product;
+use Narnoo\Booking\Booking;
 
 
 class Narnoosdk
@@ -69,11 +68,13 @@ class Narnoosdk
 		}
 	}
 
-	public function followBusiness($connect){
+	public function followOperator($connect){
+
+		$value = array("type"=>"operator","id" =>$connect );
 
 		$connect = new connect();
 		$connect->setToken($this->token);
-		$list 	 = $connect->followBusinesses($connect);
+		$list 	 = $connect->followBusinesses($value);
 		if(!empty($list)){
 			return $list;
 		}else{
@@ -81,11 +82,13 @@ class Narnoosdk
 		}
 	}
 
-	public function getImages($value){
+	public function removeOperator($connect){
 
-		$media = new media();
-		$media->setToken($this->token);
-		$list 	 = $media->getImages($value);
+		$value = array("type"=>"operator","id" =>$connect );
+
+		$connect = new connect();
+		$connect->setToken($this->token);
+		$list 	 = $connect->removeBusinesses($value);
 		if(!empty($list)){
 			return $list;
 		}else{
@@ -93,65 +96,40 @@ class Narnoosdk
 		}
 	}
 
-	public function getBusinessImages($businessType, $businessId,$value){
-
-		$media = new Access();
-		$media->setToken($this->token);
-		$list 	 = $media->getBusinessImages($businessType, $businessId, $value);
-		if(!empty($list)){
-			return $list;
+	public function getProducts( $operator = NULL ){
+    	$product = new product();
+		$product->setToken($this->token);
+		$details 	 = $product->getProducts($operator);
+		if(!empty($details)){
+			return $details;
 		}else{
 			return NULL;
 		}
 	}
 
-	public function getPrints($value){
-
-		$media = new media();
-		$media->setToken($this->token);
-		$list 	 = $media->getPrints($value);
-		if(!empty($list)){
-			return $list;
+	public function getBookableProducts($operator) {
+		$booking = new booking();
+		$booking->setToken($this->token);
+		$details = $booking->getBookableProducts($operator);
+		if(!empty($details)){
+			return $details;
 		}else{
 			return NULL;
 		}
 	}
 
-	public function getBusinessPrints($businessType, $businessId, $value){
+	public function getProductDetails($id, $operator = NULL){
+		
+		$product = new product();
 
-		$media = new Access();
-		$media->setToken($this->token);
-		$list 	 = $media->getBusinessPrints($businessType, $businessId, $value);
-		if(!empty($list)){
-			return $list;
+		$product->setToken($this->token);
+		$details 	 = $product->getProductDetails( $id, $operator );
+		if(!empty($details)){
+			return $details;
 		}else{
 			return NULL;
 		}
+	
 	}
-
-	public function getVideos($value){
-
-		$media = new media();
-		$media->setToken($this->token);
-		$list 	 = $media->getVideos($value);
-		if(!empty($list)){
-			return $list;
-		}else{
-			return NULL;
-		}
-	}
-
-	public function getBusinessVideos($businessType, $businessId, $value){
-
-		$media = new Access();
-		$media->setToken($this->token);
-		$list 	 = $media->getBusinessVideos($businessType, $businessId, $value);
-		if(!empty($list)){
-			return $list;
-		}else{
-			return NULL;
-		}
-	}
-
 
 }

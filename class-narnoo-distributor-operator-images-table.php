@@ -130,7 +130,7 @@ class Narnoo_Distributor_Operator_Images_Table extends Narnoo_Distributor_Operat
 
 		$list = null;
 		$current_page = $this->get_pagenum();
-		$request = Narnoo_Distributor_Helper::init_api( 'new' );
+		$request = Narnoo_Distributor_Helper::init_api( 'operator' );
 		//$cache	 		= Narnoo_Distributor_Helper::init_noo_cache();
 
 		if ( ! is_null( $request ) ) {
@@ -139,26 +139,25 @@ class Narnoo_Distributor_Operator_Images_Table extends Narnoo_Distributor_Operat
 				//$list = $cache->get('op_img_'.$this->operator_id.'_'.$current_page);
 					
 					//if(empty($list)){
-						$_params['page'] = $current_page;
-						$list = $request->getBusinessImages( 'operator', $this->operator_id, $_params );
+				
+						$list = $request->getImages( $this->operator_id, $current_page );
 						//if( !empty( $operator->success ) ){
 						//$cache->set('op_img_'.$this->operator_id.'_'.$current_page, $list, 43200);
 						//}
 					//}
-						//$operators 	= $list->data;
-						print_r($list);
+				
 
-				if ( empty( $list->success ) ) {
+
+				if ( ! is_array( $list->data->images ) ) {
 					throw new Exception( sprintf( __( "Error retrieving images. The operator has no images #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
 				}
 			} catch ( Exception $ex ) {
 				Narnoo_Distributor_Helper::show_api_error( $ex );
 			} 
 		}
-		
-		if ( ! is_null( $list ) ) {
 
-			$data['total_pages'] = max( 1, intval( 1 ) );
+		if ( ! is_null( $list->data->images ) ) {
+			$data['total_pages'] = max( 1, intval( $list->data->totalPages ) );
 
 			/**
 			*
