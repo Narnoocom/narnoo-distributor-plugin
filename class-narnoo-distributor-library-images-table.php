@@ -37,7 +37,6 @@ class Narnoo_Distributor_Library_Images_Table extends WP_List_Table {
 	 **/
 	function get_current_page_data_for_type( $type ) {
 		$data = array( 'total_pages' => 1, 'items' => array() );
-		
 		if ( $type === 'operator' && empty( $this->operator_id ) ) {
 			return $data;
 		}
@@ -49,10 +48,10 @@ class Narnoo_Distributor_Library_Images_Table extends WP_List_Table {
 			try {
 				if ( empty( $this->operator_id ) ) {
 					$list = $request->getImages( $current_page );
-					$list_items = $list->distributor_images;
+					$list_items = $list->data->images;
 				} else {
 					$list = $request->getImages( $this->operator_id, $current_page );
-					$list_items = $list->operator_images;
+					$list_items = $list->data->images;
 				}
 				if ( ! is_array( $list_items ) ) {
 					throw new Exception( sprintf( __( "Error retrieving images. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
@@ -62,16 +61,16 @@ class Narnoo_Distributor_Library_Images_Table extends WP_List_Table {
 				$list = null;
 			} 
 		}
-		
+	
 		if ( ! is_null( $list ) ) {
 			$data['total_pages'] = max( 1, intval( $list->total_pages ) );
 			foreach ( $list_items as $image ) {
-				$item['thumbnail_image'] = $image->thumb_image_path;
-				$item['caption'] = $image->image_caption;
-				$item['entry_date'] = $image->entry_date;
-				$item['image_id'] = $image->image_id;
-				$item['medium_image'] = $image->preview_image_path;
-				$item['large_image'] = $image->large_image_path;
+				$item['thumbnail_image'] = $image->thumbImage;
+				$item['caption'] = $image->caption;
+				$item['entry_date'] = $image->uploadedAt;
+				$item['image_id'] = $image->id;
+				$item['medium_image'] = $image->previewImage;
+				$item['large_image'] = $image->largeImage;
 				$data['items'][] = $item;
 			}
 		}

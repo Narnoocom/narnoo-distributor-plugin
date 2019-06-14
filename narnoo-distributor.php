@@ -3,13 +3,17 @@
 Plugin Name: Narnoo Distributor
 Plugin URI: http://narnoo.com/
 Description: Allows Tourism organisations that use Wordpress to manage and include their Narnoo account into their Wordpress site. You will need a Narnoo API key pair to include your Narnoo media. You can find this by logging into your account at Narnoo.com and going to Account -> View APPS.
-Version: 2.0.6
+<<<<<<< Updated upstream
+Version: 2.4.0
+=======
+Version: 2.4.2
+>>>>>>> Stashed changes
 Author: Narnoo Wordpress developer
 Author URI: http://www.narnoo.com/
 License: GPL2 or later
 */
 
-/*  Copyright 2018  Narnoo.com  (email : info@narnoo.com)
+/*  Copyright 2019  Narnoo.com  (email : info@narnoo.com)
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as
@@ -27,7 +31,11 @@ License: GPL2 or later
 
 // plugin definitions
 define( 'NARNOO_DISTRIBUTOR_PLUGIN_NAME', 'Narnoo Distributor' );
-define( 'NARNOO_DISTRIBUTOR_CURRENT_VERSION', '2.0.6' );
+<<<<<<< Updated upstream
+define( 'NARNOO_DISTRIBUTOR_CURRENT_VERSION', '2.4.0' );
+=======
+define( 'NARNOO_DISTRIBUTOR_CURRENT_VERSION', '2.4.2' );
+>>>>>>> Stashed changes
 define( 'NARNOO_DISTRIBUTOR_I18N_DOMAIN', 'narnoo-distributor' );
 
 define( 'NARNOO_DISTRIBUTOR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -43,6 +51,7 @@ require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-helper.
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-categories-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operators-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-search-add-operators-table.php' );
+require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operators-product-import-table.php' );
 
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-media-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-albums-table.php' );
@@ -51,6 +60,7 @@ require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operato
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-videos-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-library-images-table.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-operator-library-images-table.php' );
+require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'class-narnoo-distributor-attraction-template.php' );
 // Page formating //
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/inti-cmb2.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/cmb2-tabs/inti.php' );
@@ -61,7 +71,10 @@ require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/http/WebClient.php' 
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/authen.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/operatorconnect.php' );
 require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/distributor.php' );
-require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnoo/listbuilder.php' );
+// NARNOO PHP SDK API //
+require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnooauthn.php' );
+require_once( NARNOO_DISTRIBUTOR_PLUGIN_PATH . 'libs/narnooapi.php' );
+
 
 
 // begin!
@@ -87,24 +100,20 @@ class Narnoo_Distributor {
 			add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Categories_Table', 'load_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Operators_Table', 'load_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Search_Add_Operators_Table', 'load_scripts' ) );
-			//add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Operator_Products_Accordion_Table', 'load_scripts' ) );
-			//add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Search_Media_Table', 'load_scripts' ) );
-			//add_action( 'admin_enqueue_scripts', array( 'Narnoo_Distributor_Search_Operator_Media_Table', 'load_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( &$this, 'load_admin_scripts' ) );
 
 			add_filter( 'media_upload_tabs', array( &$this, 'add_narnoo_library_menu_tab' ) );
-			//add_action( 'media_upload_narnoo_library', array( &$this, 'media_narnoo_library_menu_handle') );
-			//add_action( 'media_upload_narnoo_distributor_library', array( &$this, 'media_narnoo_distributor_library_menu_handle') );
+			add_action( 'media_upload_narnoo_library', array( &$this, 'media_narnoo_library_menu_handle') );
+			add_action( 'media_upload_narnoo_distributor_library', array( &$this, 'media_narnoo_distributor_library_menu_handle') );
 
 			add_action( 'wp_ajax_narnoo_distributor_api_request', array( 'Narnoo_Distributor_Helper', 'ajax_api_request' ) );
-			//add_action( 'wp_ajax_narnoo_add_image_to_wordpress_media_library', array( 'Narnoo_Distributor_Helper', 'ajax_add_image_to_wordpress_media_library' ) );
+			add_action( 'wp_ajax_narnoo_add_image_to_wordpress_media_library', array( 'Narnoo_Distributor_Helper', 'ajax_add_image_to_wordpress_media_library' ) );
 
 			//Meta Boxes
 			add_action('add_meta_boxes', 	array( &$this, 'add_noo_album_meta_box'));
 			add_action( 'save_post', 		array( &$this, 'save_noo_album_meta_box'));
 			add_action('add_meta_boxes', 	array( &$this, 'add_noo_print_meta_box'));
 			add_action( 'save_post', 		array( &$this, 'save_noo_print_meta_box'));
-			add_action('add_meta_boxes', 	array( &$this, 'add_noo_operator_listing_meta_box'));
 			add_action( 'save_post', 		array( &$this, 'save_noo_operator_listing'));
 
 			//Meta Boxes - Operators
@@ -156,9 +165,9 @@ class Narnoo_Distributor {
 		}
 
 		$options = get_option('narnoo_distributor_settings');
-		if ( !empty( $options['operator_import'] )  ) {
+		// if ( !empty( $options['operator_import'] )  ) {
 			$this->create_product_post_type();
-		}
+		// }
 
 
 		flush_rewrite_rules();
@@ -407,43 +416,211 @@ class Narnoo_Distributor {
 	function admin_init() {
 		register_setting( 'narnoo_distributor_settings', 'narnoo_distributor_settings', array( &$this, 'settings_sanitize' ) );
 
-		add_settings_section(
-			'api_settings_section',
-			__( 'API Settings', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			array( &$this, 'settings_api_section' ),
-			'narnoo_distributor_api_settings'
-		);
+		if( isset( $_REQUEST['narnoo_section'] ) && $_REQUEST['narnoo_section'] == 'webhook' ) {
 
-		add_settings_field(
-			'access_key',
-			__( 'Acesss key', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			array( &$this, 'settings_access_key' ),
-			'narnoo_distributor_api_settings',
-			'api_settings_section'
-		);
+			add_settings_section(
+				'api_settings_section_webhook',
+				__( 'Webhook', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_webhook_section' ),
+				'narnoo_distributor_api_settings'
+			);
 
-		add_settings_field(
-			'secret_key',
-			__( 'Secret key', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			array( &$this, 'settings_secret_key' ),
-			'narnoo_distributor_api_settings',
-			'api_settings_section'
-		);
+			add_settings_field(
+				'webhook_is_enable',
+				__( 'Enable Webhook', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_webhook_is_enable' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section_webhook'
+			);
 
-		
-		add_settings_field(
-			'product_import',
-			__( 'Import Operator Products', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-			array( &$this, 'settings_operator_import' ),
-			'narnoo_distributor_api_settings',
-			'api_settings_section'
-		);
+			add_settings_field(
+				'webhook_url',
+				__( 'Webhook URL', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_webhook_url' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section_webhook'
+			);
+
+			add_settings_field(
+				'webhook_secret',
+				__( 'Webhook Secret', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_webhook_secret' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section_webhook'
+			);
+
+			add_settings_field(
+				'webhook_follow_operator',
+				__( 'Follow Operator', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_webhook_follow_operator' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section_webhook'
+			);
+
+			add_settings_field(
+				'webhook_unfollow_operator',
+				__( 'Unfollow Operator', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_webhook_unfollow_operator' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section_webhook'
+			);
+
+			add_settings_field(
+				'webhook_create_product',
+				__( 'Create Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_webhook_create_product' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section_webhook'
+			);
+
+			add_settings_field(
+				'webhook_update_product',
+				__( 'Update Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_webhook_update_product' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section_webhook'
+			);
+
+			add_settings_field(
+				'webhook_delete_product',
+				__( 'Delete Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_webhook_delete_product' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section_webhook'
+			);
+
+		} else {
+			
+			add_settings_section(
+				'api_settings_section',
+				__( 'API Settings', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_api_section' ),
+				'narnoo_distributor_api_settings'
+			);
+
+			add_settings_field(
+				'access_key',
+				__( 'Acesss key', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_access_key' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section'
+			);
+
+			add_settings_field(
+				'secret_key',
+				__( 'Secret key', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_secret_key' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section'
+			);
+
+			
+			/* add_settings_field(
+				'product_import',
+				__( 'Import Operator Products', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				array( &$this, 'settings_operator_import' ),
+				'narnoo_distributor_api_settings',
+				'api_settings_section'
+			); */
+		}
 
 		// register Narnoo shortcode button and MCE plugin
 		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
 			return;
 		}
 
+	}
+
+	function settings_webhook_section() {
+		echo '<p>' . __( 'Webhooks can only be registered via domains with SSL certificates.', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) . '</p>';
+	}
+
+	function settings_webhook_is_enable() {
+		$options = get_option('narnoo_distributor_settings');
+
+        $html = '<input type="checkbox" id="checkbox_operator" name="narnoo_distributor_settings[webhook_is_enable]" value="1"' . checked( 1, $options['webhook_is_enable'], false ) . '/>';
+	    $html .= '<label for="checkbox_operator">'.__('Enable Webhook', NARNOO_DISTRIBUTOR_I18N_DOMAIN).'</label>';
+	    $html .= '<script>';
+	    if( !$options['webhook_is_enable'] ) {
+	    	$html .= 'jQuery("document").ready(function() {';
+	    	$html .= '  jQuery("#webhook_url").parents("tr").hide();';
+	    	$html .= '  jQuery("#webhook_secret").parents("tr").hide();';
+	    	$html .= '  jQuery("#webhook_follow_operator").parents("tr").hide();';
+	    	$html .= '  jQuery("#webhook_unfollow_operator").parents("tr").hide();';
+	    	$html .= '  jQuery("#webhook_create_product").parents("tr").hide();';
+	    	$html .= '  jQuery("#webhook_update_product").parents("tr").hide();';
+	    	$html .= '  jQuery("#webhook_delete_product").parents("tr").hide();';
+	    	$html .= '});';
+	    }
+	    $html .= '	jQuery(document).on("click", "#checkbox_operator", function() {';
+	    $html .= '		if( jQuery(this).prop("checked") == true ){';
+	    $html .= '			jQuery("#webhook_url").parents("tr").show();';
+	    $html .= '			jQuery("#webhook_secret").parents("tr").show();';
+		$html .= '  		jQuery("#webhook_follow_operator").parents("tr").show();';
+		$html .= '  		jQuery("#webhook_unfollow_operator").parents("tr").show();';
+		$html .= '  		jQuery("#webhook_create_product").parents("tr").show();';
+		$html .= '  		jQuery("#webhook_update_product").parents("tr").show();';
+		$html .= '  		jQuery("#webhook_delete_product").parents("tr").show();';
+	    $html .= '		} else {';
+	    $html .= '			jQuery("#webhook_url").parents("tr").hide();';
+	    $html .= '			jQuery("#webhook_secret").parents("tr").hide();';
+		$html .= '  		jQuery("#webhook_follow_operator").parents("tr").hide();';
+		$html .= '  		jQuery("#webhook_unfollow_operator").parents("tr").hide();';
+		$html .= '  		jQuery("#webhook_create_product").parents("tr").hide();';
+		$html .= '  		jQuery("#webhook_update_product").parents("tr").hide();';
+		$html .= '  		jQuery("#webhook_delete_product").parents("tr").hide();';
+	    $html .= '		}';
+	    $html .= '	})';
+	    $html .= '</script>';
+
+	    echo $html;
+	}
+
+	function settings_webhook_url() {
+		$options = get_option( 'narnoo_distributor_settings' );
+		$siteurl = get_site_url( get_current_blog_id() );
+		$url = !empty(esc_attr($options['webhook_url'])) ? esc_attr($options['webhook_url']) : $siteurl . '/wp?narnoo_hook=' . md5($siteurl) . rand(9,999);
+		echo "<input id='webhook_url' name='narnoo_distributor_settings[webhook_url]' size='40' type='text' value='" . $url . "' />";
+	}
+
+	function settings_webhook_secret() {
+		$options = get_option( 'narnoo_distributor_settings' );
+		echo "<input id='webhook_secret' name='narnoo_distributor_settings[webhook_secret]' size='40' type='text' value='" . esc_attr($options['webhook_secret']). "' />";
+	}
+
+	function settings_webhook_follow_operator() {
+		$options = get_option( 'narnoo_distributor_settings' );
+		$html = '<input type="checkbox" id="webhook_follow_operator" name="narnoo_distributor_settings[webhook_follow_operator]" value="1"' . checked( 1, $options['webhook_follow_operator'], false ) . '/>';
+	    $html .= '<label for="webhook_follow_operator">'.__('Enable Follow Operator', NARNOO_DISTRIBUTOR_I18N_DOMAIN).'</label>';
+	    echo $html;
+	}
+
+	function settings_webhook_unfollow_operator() {
+		$options = get_option( 'narnoo_distributor_settings' );
+		$html = '<input type="checkbox" id="webhook_unfollow_operator" name="narnoo_distributor_settings[webhook_unfollow_operator]" value="1"' . checked( 1, $options['webhook_unfollow_operator'], false ) . '/>';
+	    $html .= '<label for="webhook_unfollow_operator">'.__('Enable Unfollow Operator', NARNOO_DISTRIBUTOR_I18N_DOMAIN).'</label>';
+	    echo $html;
+	}
+
+	function settings_webhook_create_product() {
+		$options = get_option( 'narnoo_distributor_settings' );
+		$html = '<input type="checkbox" id="webhook_create_product" name="narnoo_distributor_settings[webhook_create_product]" value="1"' . checked( 1, $options['webhook_create_product'], false ) . '/>';
+	    $html .= '<label for="webhook_create_product">'.__('Enable Create Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN).'</label>';
+	    echo $html;
+	}
+
+	function settings_webhook_update_product() {
+		$options = get_option( 'narnoo_distributor_settings' );
+		$html = '<input type="checkbox" id="webhook_update_product" name="narnoo_distributor_settings[webhook_update_product]" value="1"' . checked( 1, $options['webhook_update_product'], false ) . '/>';
+	    $html .= '<label for="webhook_update_product">'.__('Enable Update Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN).'</label>';
+	    echo $html;
+	}
+
+	function settings_webhook_delete_product() {
+		$options = get_option( 'narnoo_distributor_settings' );
+		$html = '<input type="checkbox" id="webhook_delete_product" name="narnoo_distributor_settings[webhook_delete_product]" value="1"' . checked( 1, $options['webhook_delete_product'], false ) . '/>';
+	    $html .= '<label for="webhook_delete_product">'.__('Enable Delete Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN).'</label>';
+	    echo $html;
 	}
 
 	function settings_api_section() {
@@ -470,23 +647,150 @@ class Narnoo_Distributor {
 
     */
 
-    function settings_operator_import() {
+    /* function settings_operator_import() {
         $options = get_option('narnoo_distributor_settings');
 
         $html = '<input type="checkbox" id="checkbox_operator" name="narnoo_distributor_settings[operator_import]" value="1"' . checked( 1, $options['operator_import'], false ) . '/>';
 	    $html .= '<label for="checkbox_operator">Check this box to import Operator products into your website</label>';
 
 	    echo $html;
-    }
+    } */
 
 	/**
 	 * Sanitize input settings.
 	 **/
 	function settings_sanitize( $input ) {
-		$new_input['access_key'] 		= trim( $input['access_key'] );
-		$new_input['secret_key'] 		= trim( $input['secret_key'] );
-        //$new_input['token_key'] 		= trim( $input['token_key'] );
-        $new_input['operator_import']   = trim( $input['operator_import'] );
+		$option = get_option( 'narnoo_distributor_settings' );
+
+		if( !empty($input['access_key']) || !empty($input['secret_key']) ) {
+			
+			$new_input['access_key'] 		= trim( $input['access_key'] );
+			$new_input['secret_key'] 		= trim( $input['secret_key'] );
+	        //$new_input['token_key'] 		= trim( $input['token_key'] );
+	        $new_input['operator_import']   = trim( $input['operator_import'] );
+
+	        $new_input['webhook_is_enable'] 		= isset( $option['webhook_is_enable'] ) ? $option['webhook_is_enable'] : '';
+	        $new_input['webhook_url']				= isset( $option['webhook_url'] ) ? $option['webhook_url'] : '';
+	       	$new_input['webhook_secret']			= isset( $option['webhook_secret'] ) ? $option['webhook_secret'] : '';
+	       	$new_input['webhook_follow_operator'] 	= isset( $input['webhook_follow_operator'] ) ? $option['webhook_follow_operator'] : '';
+	       	$new_input['webhook_unfollow_operator'] = isset( $input['webhook_unfollow_operator'] ) ? $option['webhook_unfollow_operator'] : '';
+	       	$new_input['webhook_create_product'] 	= isset( $input['webhook_create_product'] ) ? $option['webhook_create_product'] : '';
+	       	$new_input['webhook_update_product'] 	= isset( $input['webhook_update_product'] ) ? $option['webhook_update_product'] : '';
+	       	$new_input['webhook_delete_product'] 	= isset( $input['webhook_delete_product'] ) ? $option['webhook_delete_product'] : '';
+	       	$new_input['webhook_response']			= isset( $input['webhook_response'] ) ? $option['webhook_response'] : '';
+
+		} else if( $input['webhook_is_enable'] ) {
+
+			$request = Narnoo_Distributor_Helper::init_api();
+			$api_token = get_option( 'narnoo_api_token' );
+
+			$data = array();
+			$data['action'] = array();
+			if( $input['webhook_follow_operator'] ) 	{ $data['action'][] = "follow.operator"; }
+	       	if( $input['webhook_unfollow_operator'] ) 	{ $data['action'][] = "unfollow.operator"; }
+	       	if( $input['webhook_create_product'] ) 		{ $data['action'][] = "create.product"; }
+	       	if( $input['webhook_update_product'] ) 		{ $data['action'][] = "update.product"; }
+	       	if( $input['webhook_delete_product'] ) 		{ $data['action'][] = "delete.product"; }
+
+	       	$body = array();
+	       	$webhook = empty($option['webhook_response']) ? '' : json_decode($option['webhook_response'], true);
+	       	$webhook_secret = ( isset($webhook['data']['key']) && !empty($webhook['data']['key']) ) ? $webhook['data']['key'] : '';
+	       	$webhook_mode = '';
+			if( isset($webhook['data']['id']) && !empty($webhook['data']['id']) ) {
+
+	       		// for update webhook
+	       		$webhook_mode = 'update';
+	       		$data['webhookId'] = $webhook['data']['id'];
+			    $response = wp_remote_post( 'https://apis.narnoo.com/api/v1/webhook/update', array(
+						'method' => 'POST',
+						'headers' => array( "Authorization" => "bearer " . $api_token, "Content-Type" => "application/json" ),
+						'body' => json_encode($data)
+					    )
+					);
+			    $body = json_decode( $response['body'], true );
+
+			} else {
+
+		       	// for create webhook.
+		       	$webhook_mode = 'add';
+		       	$data['url'] = $input['webhook_url'];
+			    $response = wp_remote_post( 'https://apis.narnoo.com/api/v1/webhook/create', array(
+						'method' => 'POST',
+						'headers' => array( "Authorization" => "bearer " . $api_token, "Content-Type" => "application/json" ),
+						'body' => json_encode($data)
+					    )
+					);
+			    $body = json_decode( $response['body'], true );
+			    $webhook_secret = ( isset($body['data']['key']) && !empty($body['data']['key']) ) ? $body['data']['key'] : '';
+		    
+			}
+		
+			if ( is_wp_error( $response ) ) {
+				
+				$new_input = $option;
+			    $error_message = $response->get_error_message();
+
+			} else if( isset($body['success']) && $body['success'] == true ) {
+			  
+				$new_input['access_key'] 		= isset( $option['access_key'] ) ? $option['access_key'] : '';
+				$new_input['secret_key'] 		= isset( $option['secret_key'] ) ? $option['secret_key'] : '';
+		        //$new_input['token_key'] 		= isset( $option['token_key'] ) ? $option['token_key'] : '';
+		        $new_input['operator_import']   = isset( $option['operator_import'] ) ? $option['operator_import'] : '';
+
+		        $new_input['webhook_is_enable'] 		= trim( $input['webhook_is_enable'] );
+		        $new_input['webhook_url']				= trim( $input['webhook_url'] );
+		       	$new_input['webhook_secret']			= trim( $webhook_secret );
+		       	$new_input['webhook_follow_operator'] 	= trim( $input['webhook_follow_operator'] );
+		       	$new_input['webhook_unfollow_operator'] = trim( $input['webhook_unfollow_operator'] );
+		       	$new_input['webhook_create_product'] 	= trim( $input['webhook_create_product'] );
+		       	$new_input['webhook_update_product'] 	= trim( $input['webhook_update_product'] );
+		       	$new_input['webhook_delete_product'] 	= trim( $input['webhook_delete_product'] );
+		       	$new_input['webhook_response']			= ( $webhook_mode == 'add' ) ? $response['body'] : $option['webhook_response'];
+		    
+			} else {
+
+				$new_input = $option;
+
+				if( isset( $body['message'] ) && !empty( $body['message'] ) ) {
+    				add_settings_error(
+                        'webhook',
+                        esc_attr( 'settings_updated' ),
+                        $body['message'],
+                        'error'
+                    );
+				}
+
+			}
+
+		} else {
+
+			$webhook = empty($option['webhook_response']) ? '' : json_decode($option['webhook_response'], true);
+			if( isset($webhook['data']['id']) && !empty($webhook['data']['id']) ) {
+				$api_token = get_option( 'narnoo_api_token' );
+				$webhook_url = 'https://apis.narnoo.com/api/v1/webhook/delete';
+
+				$response = wp_remote_post( $webhook_url, array(
+					'method' => 'POST',
+					'headers' => array( "Authorization" => "bearer " . $api_token, "Content-Type" => "application/json" ),
+					'body' => json_encode( array( "webhookId" => $webhook['data']['id'] ) )
+				    )
+				);
+			}
+
+			$option['webhook_is_enable'] 		= trim( $input['webhook_is_enable'] );
+	        $option['webhook_url']				= '';
+	       	$option['webhook_secret']			= '';
+	       	$option['webhook_follow_operator'] 	= '0';
+	       	$option['webhook_unfollow_operator'] = '0';
+	       	$option['webhook_create_product'] 	= '0';
+	       	$option['webhook_update_product'] 	= '0';
+	       	$option['webhook_delete_product'] 	= '0';
+	       	$option['webhook_response']			= '';
+
+			$new_input = $option;
+
+		}
+
 		return $new_input;
 	}
 
@@ -494,10 +798,25 @@ class Narnoo_Distributor {
 	 * Display API settings page.
 	 **/
 	function api_settings_page() {
+		$current_tab = (isset($_REQUEST['narnoo_section']) && $_REQUEST['narnoo_section']!='') ? $_REQUEST['narnoo_section'] : 'general';
+		$section = array( 'general'=>'General', 'webhook'=>'Webhook' );
+		$function_name = '';
 		?>
 		<div class="wrap">
 			<div class="icon32"><img src="<?php echo NARNOO_DISTRIBUTOR_PLUGIN_URL; ?>/images/icon-32.png" /><br /></div>
 			<h2><?php _e( 'Narnoo API Settings', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) ?></h2>
+			<nav class="nav-tab-wrapper">
+		        <?php 
+		        foreach( $section as $tab_key => $tab_value ) {
+			        $tab_class = 'nav-tab ';
+			        $tab_class.= ($current_tab == $tab_key) ? 'nav-tab-active' : '';
+			        $function_name.= ($current_tab == $tab_key) ? "narnoo_".$current_tab."_func" : '';
+			        $tab_url = admin_url( NARNOO_DISTRIBUTOR_SETTINGS_PAGE.'&amp;narnoo_section='.$tab_key );
+			        echo '<a href="'.$tab_url.'" class="'.$tab_class.'">'.$tab_value.'</a>';
+			    }
+			    ?>
+			</nav>
+
 			<form action="options.php" method="post">
 				<?php settings_fields( 'narnoo_distributor_settings' ); ?>
 				<?php do_settings_sections( 'narnoo_distributor_api_settings' ); ?>
@@ -505,87 +824,87 @@ class Narnoo_Distributor {
 					<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
 				</p>
 			</form>
-			<?php
 
-      		$request 		= Narnoo_Distributor_Helper::init_api();
-      		//$cache	 		= Narnoo_Distributor_Helper::init_noo_cache();
-
-			$distributor = null;
-			if ( ! is_null( $request ) ) {
-				try {
-						//$distributor = $cache->get('distributor_details');
-						if(empty($distributor)){
-							$distributor = $request->getAccount();
-							//if(!empty($distributor->success)){
-								//	$cache->set('distributor_details', $distributor, 43200);
-							//}
-						}
-
-         		} catch ( Exception $ex ) {
-					$distributor = null;
-					Narnoo_Distributor_Helper::show_api_error( $ex );
-				}
+			<?php 
+			if(  method_exists ( $this, $function_name ) ) {
+				$this->$function_name();	
 			}
-
-			if ( ! is_null( $distributor ) ) {
-
-
-	         	?>
-                    <h3><?php _e( 'Distributor Details', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) ?></h3>
-
-                    <table class="form-table">
-                        <tr><th><?php _e( 'ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->narnoo_id; ?></td></tr>
-                        <tr><th><?php _e( 'Name', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_name; ?></td></tr>
-                        <tr><th><?php _e( 'Email', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_email; ?></td></tr>
-                        <tr><th><?php _e( 'Contact Name', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_contact; ?></td></tr>
-                        <tr><th><?php _e( 'Suburb', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_suburb; ?></td></tr>
-                        <tr><th><?php _e( 'State', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_state; ?></td></tr>
-                        <tr><th><?php _e( 'Phone', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_phone; ?></td></tr>
-                        <tr><th><?php _e( 'URL', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_url; ?></td></tr>
-                       </table>
-                <?php
-                } else {
-                ?>
-                    <h3><?php _e( 'Distributor Details', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) ?></h3>
-                    <table class="form-table">
-                        <tr><th><?php _e( 'ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_id; ?></td></tr>
-                        <tr><th><?php _e( 'Email', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->email; ?></td></tr>
-                        <tr><th><?php _e( 'Business Name', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_businessname; ?></td></tr>
-                        <tr><th><?php _e( 'Contact Name', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_contactname; ?></td></tr>
-                        <tr><th><?php _e( 'Country', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->country_name; ?></td></tr>
-                        <tr><th><?php _e( 'Post Code', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->postcode; ?></td></tr>
-                        <tr><th><?php _e( 'Suburb', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->suburb; ?></td></tr>
-                        <tr><th><?php _e( 'State', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->state; ?></td></tr>
-                        <tr><th><?php _e( 'Phone', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->phone; ?></td></tr>
-                        <tr><th><?php _e( 'URL', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->distributor_details->distributor_url; ?></td></tr>
-                       </table>
-                <?php
-                }
-
 			?>
 		</div>
 		<?php
 	}
 
+	function narnoo_general_func(){
+		
+  		$request 		= Narnoo_Distributor_Helper::init_api();
+  		//$cache	 		= Narnoo_Distributor_Helper::init_noo_cache();
+
+		$distributor = null;
+		if ( ! is_null( $request ) ) {
+			try {
+					//$distributor = $cache->get('distributor_details');
+					if(empty($distributor)){
+						$distributor = $request->getAccount();
+						//if(!empty($distributor->success)){
+							//	$cache->set('distributor_details', $distributor, 43200);
+						//}
+					}
+
+     		} catch ( Exception $ex ) {
+				$distributor = null;
+				Narnoo_Distributor_Helper::show_api_error( $ex );
+			}
+		}
+
+		if ( ! is_null( $distributor ) && isset($distributor->success) && $distributor->success ) {
+     	?>
+            <h3><?php _e( 'Distributor Details', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) ?></h3>
+
+            <table class="form-table">
+                <tr><th><?php _e( 'ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->id; ?></td></tr>
+                <tr><th><?php _e( 'Name', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->name; ?></td></tr>
+                <tr><th><?php _e( 'Email', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->email; ?></td></tr>
+                <tr><th><?php _e( 'Contact Name', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->contact; ?></td></tr>
+                <tr><th><?php _e( 'Suburb', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->suburb; ?></td></tr>
+                <tr><th><?php _e( 'State', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->state; ?></td></tr>
+                <tr><th><?php _e( 'Phone', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->phone; ?></td></tr>
+                <tr><th><?php _e( 'URL', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->url; ?></td></tr>
+               </table>
+        <?php
+        } else {
+        ?>
+            <h3><?php _e( 'Distributor Details', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) ?></h3>
+            <table class="form-table">
+                <tr><th><?php _e( 'ID', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->id; ?></td></tr>
+                <tr><th><?php _e( 'Email', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->email; ?></td></tr>
+                <tr><th><?php _e( 'Business Name', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->name; ?></td></tr>
+                <tr><th><?php _e( 'Contact Name', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->contact; ?></td></tr>
+                <tr><th><?php _e( 'Country', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->country; ?></td></tr>
+                <tr><th><?php _e( 'Post Code', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->postcode; ?></td></tr>
+                <tr><th><?php _e( 'Suburb', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->suburb; ?></td></tr>
+                <tr><th><?php _e( 'State', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->state; ?></td></tr>
+                <tr><th><?php _e( 'Phone', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->phone; ?></td></tr>
+                <tr><th><?php _e( 'URL', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></th><td><?php echo $distributor->data->url; ?></td></tr>
+               </table>
+        <?php
+        }
+	}
+
+
 	/**
 	 * Display Narnoo Operators page.
 	 **/
 	function operators_page() {
-/*
-        $operator_version = 'operator2' ; // for api 2.0
-
-        $request = Narnoo_Distributor_Helper::init_api($operator_version);
-
-        $list = $request->getOperators();
-
-        var_dump($list);
-*/
 
 		global $narnoo_distributor_operators_table;
 		if ( $narnoo_distributor_operators_table->func_type === 'search' ) {
 			$this->search_add_operators_page();
 			return;
+		} else if ( $narnoo_distributor_operators_table->func_type === 'product' ) {
+			$this->Operators_Product_Import_Table();
+			return;
 		}
+
 		?>
 		<div class="wrap">
 			<div class="icon32"><img src="<?php echo NARNOO_DISTRIBUTOR_PLUGIN_URL; ?>/images/icon-32.png" /><br /></div>
@@ -603,6 +922,36 @@ class Narnoo_Distributor {
 
 	}
 
+
+	/**
+	 * Display Operators Products.
+	 **/
+	function Operators_Product_Import_Table() {
+		global $narnoo_distributor_operators_table;
+		?>
+		<div class="wrap">
+			<div class="icon32"><img src="<?php echo NARNOO_DISTRIBUTOR_PLUGIN_URL; ?>/images/icon-32.png" /><br /></div>
+			<h2>
+				<?php _e( 'Narnoo - Operator Products', NARNOO_DISTRIBUTOR_I18N_DOMAIN ) ?>
+				<a class="add-new-h2" href="?page=narnoo-distributor-operators"><?php _e( 'Back to Operators', NARNOO_DISTRIBUTOR_I18N_DOMAIN ); ?></a>
+			</h2>
+			<form id="narnoo-search-add-operators-form" method="post" action="?<?php echo esc_attr( build_query( array(
+				'page' => isset( $_REQUEST['page'] ) ? $_REQUEST['page'] : '',
+				'paged' => $narnoo_distributor_operators_table->get_pagenum(),
+				'func_type' => $narnoo_distributor_operators_table->func_type,
+				'operator' => $narnoo_distributor_operators_table->operator,
+				'operator_name' => $narnoo_distributor_operators_table->operator_name
+			) ) ); ?>">
+
+				<?php
+				if ( $narnoo_distributor_operators_table->prepare_items() ) {
+					$narnoo_distributor_operators_table->display();
+				}
+				?>
+			</form>
+		</div>
+		<?php
+	}
 
 
 	/**
@@ -855,12 +1204,13 @@ class Narnoo_Distributor {
 					try {
 
 						$list = $request->getAlbums( $current_page );
+
 						if ( ! is_array( $list->distributor_albums ) ) {
 							throw new Exception( sprintf( __( "Error retrieving albums. Unexpected format in response page #%d.", NARNOO_OPERATOR_I18N_DOMAIN ), $current_page ) );
 						}
 
 						if(!empty( $list->success ) ){
-								//$cache->set('albums_'.$current_page, $list, 43200);
+							//$cache->set('albums_'.$current_page, $list, 43200);
 						}
 
 					} catch ( Exception $ex ) {
@@ -878,9 +1228,15 @@ class Narnoo_Distributor {
         <label for="my_meta_box_select">Narnoo Album:</label>
         <select name="noo_album_select" id="noo_album_select">
         	<option value="">None</option>
-            <?php foreach ($list->distributor_albums as $album) { ?>
-            		<option value="<?php echo $album->album_id; ?>" <?php selected( $selected, $album->album_id ); ?>><?php echo ucwords( $album->album_name ); ?></option>
-            <?php } ?>
+            <?php 
+            	if( !empty($list->data->albums) ) { 
+            		foreach ($list->data->albums as $album) { 
+            			if( !empty($album) ) {
+            				?><option value="<?php echo $album->album_id; ?>" <?php selected( $selected, $album->id ); ?>><?php echo ucwords( $album->title ); ?></option><?php
+            			}
+            		}
+            	 } 
+           	?>
         </select>
         <p><small><em>Select an album and this will be displayed the page.</em></small></p>
     </p>
@@ -1060,10 +1416,10 @@ class Narnoo_Distributor {
         <select name="noo_op_album_select" id="noo_op_album_select">
         	<option value="">None</option>
             
-            <?php if(!empty($list->operator_albums)){ ?>
+            <?php if(!empty($list->data->albums)){ ?>
 	        
-	            <?php foreach ($list->operator_albums as $album) { ?>
-	            		<option value="<?php echo $album->album_id; ?>" <?php selected( $selected, $album->album_id ); ?>><?php echo ucwords( $album->album_name ); ?></option>
+	            <?php foreach ($list->data->albums as $album) { ?>
+	            		<option value="<?php echo $album->album_id; ?>" <?php selected( $selected, $album->id ); ?>><?php echo ucwords( $album->title ); ?></option>
 	            <?php } ?>
 	        
 	        <?php } ?>
@@ -1120,4 +1476,300 @@ class Narnoo_Distributor {
 		</style>
 		<?php
 	}
+}
+
+
+
+/*
+ * Add webhook
+ */
+add_action('init', 'narnoo_webhook');
+
+function narnoo_webhook() {
+	global $wpdb;
+	$narnoo_hook = md5( get_site_url( get_current_blog_id() ) );
+	if( isset($_REQUEST['narnoo_hook']) and !empty($_REQUEST['narnoo_hook']) /*&& $_REQUEST['narnoo_hook'] == $narnoo_hook */ ) {
+
+		$narnoo_headers = getallheaders();
+		$narnoo_key = isset($narnoo_headers['Narnoo-Signature']) ? $narnoo_headers['Narnoo-Signature'] : '';
+		$option = get_option( 'narnoo_distributor_settings' );
+       	$webhook = empty($option['webhook_response']) ? '' : json_decode($option['webhook_response'], true);
+
+		if( isset($webhook['data']['key']) && !empty($webhook['data']['key']) && $webhook['data']['key'] == $narnoo_key) {
+		
+			$data     = json_decode( file_get_contents('php://input'), true );
+			$action   = $data['action'];
+			$op_id    = $data['businessId'];
+			$data_ids = $data['data'];
+
+			$post_ids = '';
+			if( in_array( $action, array( 'update.product', 'delete.product' ) ) ) {
+				foreach ( $data_ids as $narnoo_product_id ) {
+					$narnoo_product_args = array(
+					    'post_type' => 'narnoo_product',
+					    'meta_query' => array(
+					   		array(
+					   			'key' => 'narnoo_product_id',
+					   			'value' => $narnoo_product_id,
+					   			'compare' => '='
+					   		)
+					    )
+					);
+					$narnoo_product_query = new WP_Query( $narnoo_product_args ); 
+					while( $narnoo_product_query->have_posts() ) { 
+					    $narnoo_product_query->the_post(); 
+					    global $post;
+					    $post_ids[$narnoo_product_id] = $post->ID;
+					}
+				}
+			}
+
+			switch ($action) {
+				case 'unfollow.operator':
+				case 'follow.operator':
+					break;
+
+				case 'create.product':
+					if( !empty($data_ids) ) {
+						foreach ($data_ids as $productId) {
+							narnoo_update_product( $productId, $op_id, $action );
+						}
+					}
+					break;
+
+				case 'update.product':
+					if( !empty($data_ids) ) {
+						foreach ($data_ids as $productId) {
+						    $auto_upate = get_post_meta( $post_id[$productId], 'narnoo_product_remove_auto_update', true );
+						    if( !$auto_upate ) {
+								narnoo_update_product( $productId, $op_id, $action );
+							}
+						}
+					}
+					break;
+
+				case 'delete.product':
+					if( !empty($post_ids) ) {
+						foreach ($post_ids as $post_id) {
+							wp_delete_post( $post_id );
+						}
+					}
+					break;
+				
+				default:
+					# code...
+					break;
+			}
+		}
+	    echo 'success';
+	    die;
+	}
+}
+
+// Update product for narnoo distributer plugin.
+function narnoo_update_product( $productId, $op_id, $action ) {
+    $user_ID         = get_current_user_id();
+    // $productId       = get_post_meta( $post_id, 'narnoo_product_id', true );
+    // $op_id           = get_post_meta( $post_id, 'narnoo_operator_id', true );
+
+    // Fetch operator data
+    $requestOperator = Narnoo_Distributor_Helper::init_api();
+    $operator        = $requestOperator->business_listing( $op_id );
+    $operatorPostId  = Narnoo_Distributor_Helper::get_post_id_for_imported_operator_id($op_id);
+
+    // Fetch operator product data
+    $requestOperator = Narnoo_Distributor_Helper::init_api('new');
+    $productDetails  = $requestOperator->getProductDetails( $productId, $op_id );
+
+    if(!empty($productDetails) || !empty($productDetails->success)){
+        $postData = Narnoo_Distributor_Helper::get_post_id_for_imported_product_id( $productDetails->data->productId );
+
+        if ( !empty( $postData['id'] ) && $postData['status'] !== 'trash' && $action == 'update.product' ) {
+            $post_id = $postData['id'];
+
+            // update existing post, ensuring parent is correctly set
+            $update_post_fields = array(
+                'ID'            => $post_id,
+                'post_title'    => $productDetails->data->title,
+                'post_type'     => 'narnoo_product',
+                'post_status'   => 'publish',
+                'post_author'   => $user_ID,
+                'post_modified' => date('Y-m-d H:i:s')
+            );
+
+            if(!empty($productDetails->data->description->summary[0]->english->text)){
+                $update_post_fields['post_excerpt'] = strip_tags( $productDetails->data->description->summary[0]->english->text );
+            }
+
+            if(!empty($productDetails->data->description->description[0]->english->text)){
+                $update_post_fields['post_content'] = strip_tags( $productDetails->data->description->description[0]->english->text );
+            }
+
+            wp_update_post($update_post_fields);
+
+            update_post_meta( $post_id, 'product_description', $productDetails->data->description->description->english->text);
+            update_post_meta( $post_id, 'product_excerpt',  strip_tags( $productDetails->data->description->summary->english->text ));
+
+           // set a feature image for this post but first check to see if a feature is present
+
+            $feature = get_the_post_thumbnail($post_id);
+            if(empty($feature)){
+                if( !empty( $productDetails->data->featureImage->xxlargeImage ) ){
+                	// require_once(ABSPATH . 'wp-admin/includes/media.php');
+					// require_once(ABSPATH . 'wp-admin/includes/file.php');
+					// require_once(ABSPATH . 'wp-admin/includes/image.php');
+                    $url = "https:" . $productDetails->data->featureImage->xxlargeImage;
+                    $desc = $productDetails->data->title . " product image";
+                    $feature_image = media_sideload_image($url, $post_id, $desc, 'id');
+                    if(!empty($feature_image)){
+                        set_post_thumbnail( $post_id, $feature_image );
+                    }
+                }
+
+            }
+
+        } else if( $action == 'create.product' ) {
+        	//create new post with operator details
+            $new_post_fields = array(
+                'post_title'        => $productDetails->data->title,
+                'post_status'       => 'publish',
+                'post_date'         => date('Y-m-d H:i:s'),
+                'post_author'       => $user_ID,
+                'post_type'         => 'narnoo_product',
+                'comment_status'    => 'closed',
+                'ping_status'       => 'closed'
+            );
+
+            if(!empty($productDetails->data->description->summary[0]->english->text)){
+                $new_post_fields['post_excerpt'] = strip_tags( $productDetails->data->description->summary[0]->english->text );
+            }
+
+            if(!empty($productDetails->data->description->description[0]->english->text)){
+                $new_post_fields['post_content'] = strip_tags( $productDetails->data->description->description[0]->english->text );
+            }
+
+            $post_id = wp_insert_post($new_post_fields);
+            
+            // set a feature image for this post
+            if( !empty( $productDetails->data->featureImage->xxlargeImage ) ){
+				// require_once(ABSPATH . 'wp-admin/includes/media.php');
+				// require_once(ABSPATH . 'wp-admin/includes/file.php');
+				// require_once(ABSPATH . 'wp-admin/includes/image.php');
+                $url = "https:" . $productDetails->data->featureImage->xxlargeImage;
+                $desc = $productDetails->data->title . " product image";
+                $feature_image = media_sideload_image($url, $post_id, $desc, 'id');
+                if(!empty($feature_image)){
+                    set_post_thumbnail( $post_id, $feature_image );
+                }
+            }
+        	//$response['msg'] = "Successfully re-imported product details";
+        }
+
+        // insert/update custom fields with operator details into post
+        
+        if(!empty($productDetails->data->primary)){
+            update_post_meta($post_id, 'primary_product',               "Primary Product");
+        }else{
+            update_post_meta($post_id, 'primary_product',               "Product");
+        }
+        
+        update_post_meta($post_id, 'narnoo_operator_id',            $op_id); 
+        update_post_meta($post_id, 'narnoo_operator_name',          $operator->data->profile->name);
+        update_post_meta($post_id, 'parent_post_id',                $operatorPostId);
+        update_post_meta($post_id, 'narnoo_booking_id',             $productDetails->data->bookingId);  
+        update_post_meta($post_id, 'narnoo_product_id',             $productDetails->data->productId);
+        update_post_meta($post_id, 'product_min_price',             $productDetails->data->minPrice);
+        update_post_meta($post_id, 'product_avg_price',             $productDetails->data->avgPrice);
+        update_post_meta($post_id, 'product_max_price',             $productDetails->data->maxPrice);
+        update_post_meta($post_id, 'product_booking_link',          $productDetails->data->directBooking);
+        
+        update_post_meta($post_id, 'narnoo_listing_category',       $operator->data->profile->category);
+        update_post_meta($post_id, 'narnoo_listing_subcategory',    $operator->data->profile->subCategory);
+
+        if( lcfirst( $operator->data->profile->category ) == 'attraction' ){
+
+            update_post_meta($post_id, 'narnoo_product_duration',   $productDetails->data->additionalInformation->operatingHours);
+            update_post_meta($post_id, 'narnoo_product_start_time', $productDetails->data->additionalInformation->startTime);
+            update_post_meta($post_id, 'narnoo_product_end_time',   $productDetails->data->additionalInformation->endTime);
+            update_post_meta($post_id, 'narnoo_product_transport',  $productDetails->data->additionalInformation->transfer);
+            update_post_meta($post_id, 'narnoo_product_purchase',   $productDetails->data->additionalInformation->purchases);
+            update_post_meta($post_id, 'narnoo_product_health',     $productDetails->data->additionalInformation->fitness);
+            update_post_meta($post_id, 'narnoo_product_packing',    $productDetails->data->additionalInformation->packing);
+            update_post_meta($post_id, 'narnoo_product_children',   $productDetails->data->additionalInformation->child);
+            update_post_meta($post_id, 'narnoo_product_additional', $productDetails->data->additionalInformation->additional);
+            
+        }
+        /**
+        *
+        *   Import the gallery images as JSON encoded object
+        *
+        */
+        if(!empty($productDetails->data->gallery)){
+            update_post_meta($post_id, 'narnoo_product_gallery', json_encode($productDetails->data->gallery) );
+        }else{
+            delete_post_meta($post_id, 'narnoo_product_gallery');
+        }
+        /**
+        *
+        *   Import the video player object
+        *
+        */
+        if(!empty($productDetails->data->featureVideo)){
+            update_post_meta($post_id, 'narnoo_product_video', json_encode($productDetails->data->featureVideo) );
+        }else{
+            delete_post_meta($post_id, 'narnoo_product_video');
+        }
+        /**
+        *
+        *   Import the brochure object
+        *
+        */
+        if(!empty($productDetails->data->featurePrint)){   
+            update_post_meta($post_id, 'narnoo_product_print', json_encode($productDetails->data->featurePrint) );
+        }else{
+            delete_post_meta($post_id, 'narnoo_product_print');
+        }
+                
+    } //if success
+}
+
+
+/*
+ * Add the extra options to the 'Publish' box
+ */
+add_action('post_submitbox_misc_actions', 'add_narnoo_product_publish_meta_options');
+
+function add_narnoo_product_publish_meta_options($post_obj) {
+  	global $post;
+  	$post_type = 'narnoo_product'; // If you want a specific post type
+ 	$value = get_post_meta($post_obj->ID, 'narnoo_product_remove_auto_update', true); // If saving value to post_meta
+ 
+  	if($post_type==$post->post_type) {
+    	echo '<div class="misc-pub-section misc-pub-section-last">';
+        echo '<label><input type="checkbox"' . (!empty($value) ? ' checked="checked" ' : null) . ' value="1" name="check_meta" />';
+        _e('Remove Auto Update From Narnoo', NARNOO_DISTRIBUTOR_I18N_DOMAIN);
+        echo '</label>'.'</div>';
+  	}
+}
+ 
+
+/*
+ * Init extra_publish_options_save() on save_post action
+ */
+add_action( 'save_post', 'narnoo_product_extra_publish_options_save', 10 , 3);
+
+function narnoo_product_extra_publish_options_save($post_id, $post, $update) {
+ 
+  	$post_type = 'narnoo_product'; // If using specific post type
+  	if ( $post_type != $post->post_type ) { return; }
+ 
+  	if ( wp_is_post_revision( $post_id ) ) { return; }
+ 
+  	if(isset($_POST['check_meta']) && $_POST['check_meta'] == 1) { // Checkbox value is 1 if set
+    	update_post_meta($post_id, 'narnoo_product_remove_auto_update', $_POST['check_meta']);
+  	} else {
+  		update_post_meta($post_id, 'narnoo_product_remove_auto_update', $_POST['check_meta']); 
+  	}
+ 
+ 
 }
