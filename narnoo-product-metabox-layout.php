@@ -238,6 +238,11 @@ function narnoo_product_attraction_metaboxes() {
 				'id'   => 'narnoo_product_duration',
 				'type' => 'text_small'
 			),
+			/*array(
+				'name' => __( 'Pick Product Time', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+				'id'   => 'narnoo_product_pick_time',
+				'type' => 'select'
+			),*/
 			array(
 				'name' => __( 'Start Time', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
 				'id'   => 'narnoo_product_start_time',
@@ -402,6 +407,32 @@ function narnoo_product_attraction_metaboxes() {
 				),
 			)
 		)
+	);
+
+	$tabs_setting['tabs'][] = array(
+		'id'     => 'tab11',
+		'title'  => __( 'Gallery', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
+		'desc' => '',
+		//'id'   => 'narnoo_product_gallery',
+		'fields' => array(
+			array(
+				'name' => 'Gallery Images',
+				'desc' => '',
+				'id'   => 'narnoo_product_gallery_list',
+				'type' => 'file_list',
+				// 'preview_size' => array( 100, 100 ), // Default: array( 50, 50 )
+				// 'query_args' => array( 'type' => 'image' ), // Only images attachment
+				// Optional, override default text strings
+				'text' => array(
+					'add_upload_files_text' => 'Upload Files', // default: "Add or Upload Files"
+					'remove_image_text' => 'Remove Image', // default: "Remove Image"
+					'file_text' => 'File', // default: "File:"
+					'file_download_text' => 'Download', // default: "Download"
+					'remove_text' => 'Remove', // default: "Remove"
+				),
+			),
+		)
+	
 	);
 
 	// Set tabs

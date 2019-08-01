@@ -491,7 +491,7 @@ function narnoo_get_product_print($print, $markup = NULL){
 */
 function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
 
-	
+
 	if( !empty($gallery) ){
 
 		if(!empty($raw)){
@@ -644,6 +644,9 @@ function narnoo_get_product_gallery($gallery,$markup=NULL,$raw=NULL){
 *
 */
 function narnoo_get_product_gallery_display($gallery,$markup=NULL,$raw=NULL){
+
+	echo '<pre>';
+	print_r($gallery);
 
 	
 	if( !empty($gallery) ){
@@ -822,6 +825,7 @@ if(!empty($isAttraction) && $isAttraction == 'attraction'){
     $children 	= get_post_meta(get_the_ID(), 'narnoo_product_children',    true); //done
     $addition 	= get_post_meta(get_the_ID(), 'narnoo_product_additional',  true); //done
     $itinerary 	= get_post_meta(get_the_ID(), 'product_itinerary',  		true); //done
+    $pickTime 	= get_post_meta(get_the_ID(), 'narnoo_product_pick_time',    true); //done
     
 }
 

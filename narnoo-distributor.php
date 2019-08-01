@@ -3,11 +3,7 @@
 Plugin Name: Narnoo Distributor
 Plugin URI: http://narnoo.com/
 Description: Allows Tourism organisations that use Wordpress to manage and include their Narnoo account into their Wordpress site. You will need a Narnoo API key pair to include your Narnoo media. You can find this by logging into your account at Narnoo.com and going to Account -> View APPS.
-<<<<<<< Updated upstream
 Version: 2.4.0
-=======
-Version: 2.4.2
->>>>>>> Stashed changes
 Author: Narnoo Wordpress developer
 Author URI: http://www.narnoo.com/
 License: GPL2 or later
@@ -31,11 +27,7 @@ License: GPL2 or later
 
 // plugin definitions
 define( 'NARNOO_DISTRIBUTOR_PLUGIN_NAME', 'Narnoo Distributor' );
-<<<<<<< Updated upstream
 define( 'NARNOO_DISTRIBUTOR_CURRENT_VERSION', '2.4.0' );
-=======
-define( 'NARNOO_DISTRIBUTOR_CURRENT_VERSION', '2.4.2' );
->>>>>>> Stashed changes
 define( 'NARNOO_DISTRIBUTOR_I18N_DOMAIN', 'narnoo-distributor' );
 
 define( 'NARNOO_DISTRIBUTOR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
