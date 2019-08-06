@@ -111,12 +111,12 @@ $tripadvisor = get_post_meta( $post->ID, 'tripadvisor', true );
 									</div>
 						    	<?php endif; ?>
 
-						    	<?php if(!empty($businessemail)): ?>
+						    	<?php /*if(!empty($businessemail)): ?>
 									<div class="row">
 										<div class="col-md-5 col-sm-5"><label> Business Email:</label></div>
 										<div class="col-md-7 col-sm-7"><?php echo $businessemail; ?></div>
 									</div>
-						    	<?php endif; ?>
+						    	<?php endif;*/ ?>
 
 							</div>
 
@@ -220,12 +220,12 @@ $tripadvisor = get_post_meta( $post->ID, 'tripadvisor', true );
 									</div>
 						    	<?php endif; ?>
 
-						    	<?php if(!empty($businessemail)): ?>
+						    	<?php /*if(!empty($businessemail)): ?>
 									<div class="row">
 										<div class="col-md-5 col-sm-5"><label> Business Email:</label></div>
 										<div class="col-md-7 col-sm-7"><?php echo $businessemail; ?></div>
 									</div>
-						    	<?php endif; ?>
+						    	<?php endif;*/ ?>
 
 							</div>
 
