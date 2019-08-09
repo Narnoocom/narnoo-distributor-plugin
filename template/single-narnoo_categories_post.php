@@ -188,11 +188,7 @@ $tripadvisor = get_post_meta( $post->ID, 'tripadvisor', true );
 									<?php the_content(); ?>
 								</div>
 							<?php endwhile; ?>
-							<div class="subcategory-product-list">
-
-								<?php  echo do_shortcode( '[ncm_product_search search="false" date="true"]' );?>
-
-			        		</div>
+							
 
 			            </div>	
 
@@ -255,6 +251,19 @@ $tripadvisor = get_post_meta( $post->ID, 'tripadvisor', true );
 
 		            </div>
 		            <!-- Row End --> 
+
+		            <div class="row">
+		            	<div class="col-md-12">
+		            	
+			            	<div class="subcategory-product-list">
+
+								<?php  echo do_shortcode( '[ncm_product_search search="false" date="true"]' );?>
+
+			        		</div>
+		        		
+		        		</div>
+
+		            </div>
 
 					
 
