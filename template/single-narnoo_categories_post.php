@@ -12,7 +12,7 @@ $narnno_args = array(
     );
 
 $narnoo_query = new WP_Query( $narnno_args );
-//print_r($narnoo_query );
+
 
 $businessname = get_post_meta( $post->ID, 'businessname', true );
 $businessphone = get_post_meta( $post->ID, 'phone', true );
@@ -33,19 +33,11 @@ $tripadvisor = get_post_meta( $post->ID, 'tripadvisor', true );
 
 			<div id="narnoo_categories_post" <?php post_class(); ?>>
 
-            <!-- <header class="entry-header"> -->
-				
-				<?php //the_title( '<h1 class="entry-title">', '</h1>' ); ?>
-
-			
-			<!-- </header> --><!-- .entry-header -->
-
 			<div class="entry-content">
 				
 
 				<div class="narnno-subcategory">
-					<!-- <h2>Sub Category</h2> -->
-
+					
 					<!-- Row start --> 
 					<div class="row">
 
@@ -110,13 +102,7 @@ $tripadvisor = get_post_meta( $post->ID, 'tripadvisor', true );
 										<div class="col-md-7 col-sm-7"><?php echo $businessurl; ?></div>
 									</div>
 						    	<?php endif; ?>
-
-						    	<?php /*if(!empty($businessemail)): ?>
-									<div class="row">
-										<div class="col-md-5 col-sm-5"><label> Business Email:</label></div>
-										<div class="col-md-7 col-sm-7"><?php echo $businessemail; ?></div>
-									</div>
-						    	<?php endif;*/ ?>
+					   
 
 							</div>
 
@@ -147,15 +133,6 @@ $tripadvisor = get_post_meta( $post->ID, 'tripadvisor', true );
 		            </div>
 		            <!-- Row End --> 
 
-					<?php  /* 
-					if ( $narnoo_query->have_posts() ) :
-						while ( $narnoo_query->have_posts() ) : $narnoo_query->the_post(); ?>
-						  
-						    <h3><a href="<?php the_permalink(); ?>" title="<?php the_title(); ?>"><?php the_title(); ?></a></h3>
-						    
-					<?php	endwhile;
-					endif;
-					wp_reset_postdata();  */  ?>
 
 				</div>
 
@@ -165,15 +142,9 @@ $tripadvisor = get_post_meta( $post->ID, 'tripadvisor', true );
 
     <?php else: ?>	
 
-    	<?php //while ( have_posts() ) : the_post(); ?>
-
+    	
 			<div id="narnoo_categories_post" <?php post_class(); ?>>
 
-	            <?php /*<header class="entry-header">
-					
-					<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
-				
-				</header>*/?><!-- .entry-header -->
 
 				<div class="entry-content">
 					
@@ -215,13 +186,6 @@ $tripadvisor = get_post_meta( $post->ID, 'tripadvisor', true );
 										<div class="col-md-7 col-sm-7"><?php echo $businessurl; ?></div>
 									</div>
 						    	<?php endif; ?>
-
-						    	<?php /*if(!empty($businessemail)): ?>
-									<div class="row">
-										<div class="col-md-5 col-sm-5"><label> Business Email:</label></div>
-										<div class="col-md-7 col-sm-7"><?php echo $businessemail; ?></div>
-									</div>
-						    	<?php endif;*/ ?>
 
 							</div>
 
@@ -275,7 +239,6 @@ $tripadvisor = get_post_meta( $post->ID, 'tripadvisor', true );
 
 	        </div>
 
-    	<?php //endwhile; ?>
 
   	<?php endif; ?>
 

@@ -136,18 +136,8 @@ class Narnoo_Distributor_Operator_Images_Table extends Narnoo_Distributor_Operat
 		if ( ! is_null( $request ) ) {
 			try {
 
-				//$list = $cache->get('op_img_'.$this->operator_id.'_'.$current_page);
-					
-					//if(empty($list)){
+				$list = $request->getImages( $this->operator_id, $current_page );
 				
-						$list = $request->getImages( $this->operator_id, $current_page );
-						//if( !empty( $operator->success ) ){
-						//$cache->set('op_img_'.$this->operator_id.'_'.$current_page, $list, 43200);
-						//}
-					//}
-				
-
-
 				if ( ! is_array( $list->data->images ) ) {
 					throw new Exception( sprintf( __( "Error retrieving images. The operator has no images #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
 				}

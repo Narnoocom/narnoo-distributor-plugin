@@ -136,18 +136,7 @@ class Narnoo_Distributor_Operator_Brochures_Table extends Narnoo_Distributor_Ope
 		if ( ! is_null( $request ) ) {
 			try {
 				
-
-				//$list = $cache->get('op_print_'.$this->operator_id.'_'.$current_page);
-					
-					//if(empty($list)){
-				
-						$list = $request->getBrochures( $this->operator_id, $current_page );
-
-
-						//if( !empty( $operator->success ) ){
-						//$cache->set('op_print_'.$this->operator_id.'_'.$current_page, $list, 43200);
-						//}
-					//}
+				$list = $request->getBrochures( $this->operator_id, $current_page );
 
 				if ( ! is_array( $list->data->prints ) ) {
 					throw new Exception( sprintf( __( "Error retrieving prints. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );

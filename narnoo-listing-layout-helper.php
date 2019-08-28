@@ -178,38 +178,3 @@ function narnoo_listing_metaboxes() {
         'tabs' => $tabs_setting
     ) );
 }
-
-
-/*
-*
-*	Show a checkbox for featured products - eCommerce plugin
-*
-*
-
-add_action( 'cmb2_admin_init', 'narnoo_listing_feature' );
-function narnoo_listing_feature() {
-
-    // Start with an underscore to hide fields from custom fields list
-    $prefix = 'narnoo_';
-
-    /*
-     * Initiate the metabox
-     *
-    $cmb = new_cmb2_box( array(
-        'id'            => 'featured_narnoo_product',
-        'title'         => __( 'Feature This Product', NARNOO_DISTRIBUTOR_I18N_DOMAIN ),
-        'object_types'  => array( 'narnoo_product' ), // Post type
-        'context'       => 'side',
-        'priority'      => 'low',
-        'show_names'    => true,
-    ) );
-
-    $cmb->add_field( array(
-    'name' => 'Set as featured product',
-    'desc' => 'Check to set product (optional)',
-    'id'   => $prefix.'featured_product',
-    'type' => 'checkbox',
-	) );
-
-}
-*/

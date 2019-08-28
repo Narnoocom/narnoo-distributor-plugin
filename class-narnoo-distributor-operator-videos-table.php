@@ -253,15 +253,8 @@ class Narnoo_Distributor_Operator_Videos_Table extends Narnoo_Distributor_Operat
 		if ( ! is_null( $request ) ) {
 			try {
 				
-				//$list_m = $cache->get('op_video_'.$this->operator_id.'_'.$current_page);
+				$list_m = $request->getVideos( $this->operator_id, $current_page );
 				
-				//if(empty($list_m)){
-					$list_m = $request->getVideos( $this->operator_id, $current_page );
-					//if( !empty( $list_m->success ) ){
-					//$cache->set('op_video_'.$this->operator_id.'_'.$current_page, $list_m, 43200);
-					//}
-				//}
-
 				if ( ! is_array( $list_m->data->videos ) ) {
 					throw new Exception( sprintf( __( "Error retrieving videos. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
 				}

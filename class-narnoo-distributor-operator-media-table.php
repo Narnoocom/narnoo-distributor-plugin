@@ -23,15 +23,8 @@ class Narnoo_Distributor_Operator_Media_Table extends WP_List_Table {
 			if ( ! is_null( $request ) ) {
 				try {
 					
-					//$operator = $cache->get('operator'.$this->operator_id);
-					
-					//if(empty($operator)){
 						$operator = $request->getAccount( $this->operator_id );
-						//if( !empty( $operator->success ) ){
-						//$cache->set('operator'.$this->operator_id, $operator, 43200);
-						//}
-					//}
-                	
+					
 					if ( ! isset( $operator->data->details->id ) ) {
 						throw new Exception( sprintf( __( "Error retrieving operator %s. Unexpected format in response.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $this->operator_id ) );
 					}

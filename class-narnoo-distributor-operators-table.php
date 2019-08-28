@@ -292,16 +292,8 @@ class Narnoo_Distributor_Operators_Table extends WP_List_Table {
 		if ( ! is_null( $request ) ) {
 			try {
 
-               	//$list = $cache->get('operators_'.$current_page);
-               	//if(empty($list)){
-				    $list 		= $request->following($current_page);
-                	$operators 	= $list->data;
-
-                	//if( !empty( $list->success ) ){
-						//$cache->set('operators_'.$current_page, $list, 43200);
-					//}
-				//}
-                	//print_r($operators);
+				$list 		= $request->following($current_page);
+                $operators 	= $list->data;
 
 				if ( ! is_array( $operators ) ) {
 					throw new Exception( sprintf( __( "Error retrieving operators. Unexpected format in response page #%d.", NARNOO_DISTRIBUTOR_I18N_DOMAIN ), $current_page ) );
